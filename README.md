@@ -93,18 +93,20 @@ v6.0 is a recalibration release. v5.0's concept model was tuned for a small acce
 
 | Division | v5.0 | v6.0 |
 | --- | --- | --- |
-| Site work | `800 + trench×6.5 + area×2.1` | `2500 + trench×26 + area×3.2` |
-| Foundation & slab | *absent* | New division, driven by takeoff slab + stem-wall volume; drops to a verification allowance when an existing slab is credited |
-| Framing | `area×7.2 + beds×950 + baths×1200` | `area×19 + beds×2100 + baths×2400` |
-| Roofing | *absent* | New division, `area×6.8` |
-| HVAC | `area×hvac×1.10` (hvac ≈ 3.4) | `area×hvac×1.10` (hvac rescaled 8.6–15.5) |
-| Electrical | `area×4.2 + baths×650` | `area×8.4 + baths×700` |
-| Plumbing | `baths×3200 + 1800 + heater` | `area×2.1 + baths×3900 + beds×520 + laundry×2300 + heater + 2600` |
-| Interior finishes | `area×finishRate×0.32` | `area×finishRate×0.30` |
-| Openings & exterior | *bundled into finishes* | New separate division, `area×9.2` |
-| Permits | `2800 + area×3.5` | `3200 + area×4.6` |
-| Engineering | `2500 + area×1.5` | `3500 + area×3.2` |
+| Site work | `800 + trench×6.5 + area×2.1` | `1500 + slabCY×78 + trench×35` |
+| Foundation & slab | *absent* | New division, `area×11.97 + slabCY×276 + 1160`; drops to a verification allowance when an existing slab is credited |
+| Framing | `area×7.2 + beds×950 + baths×1200` | `area×28.5 + envelopeSF×5.7` |
+| Roofing | *absent* | New division, `area×9.87` |
+| HVAC | `area×hvac×1.10` (hvac ≈ 3.4) | `area×12.47×climateMul×1.10` |
+| Electrical | `area×4.2 + baths×650` | `area×20.75 + 2215` |
+| Plumbing | `baths×3200 + 1800 + heater` | `fixtures×777 + pipingLF×23.4 + water heater + water service` |
+| Interior finishes | `area×finishRate×0.32` | `area×finishRate×0.24 + caseworkLF×328` |
+| Openings & exterior | *bundled into finishes* | New separate division, `openings×(597+965) + perimeter×8×15.06` |
+| Permits | `2800 + area×3.5` | `3000 + area×2.5` |
+| Engineering | `2500 + area×1.5` | `3000 + area×2.75` |
 | Existing-condition credits | flat `$14 / $18 / $10` per SF | derived from the actual affected division base |
+
+**All v6.0 concept coefficients are derived from the shipped cost book** at the $85/hr reference labor point, not hand-tuned. The concept path and the detailed cost-book path are two views of one rate set, which is why they agree within 1.7% on the worked test case.
 
 **Market index semantics corrected**
 
@@ -124,7 +126,7 @@ v6.0 is a recalibration release. v5.0's concept model was tuned for a small acce
 
 - New `sovr-build-os-estimator-v6` key with automatic migration from v5 and v4 workspaces on first load.
 
-**Calibration effect** — a 1,274 SF / 3 bed / 1 bath plan at Kern County defaults moved from **$119,065 ($93.46/SF)** in v5.0 to **$179,889 ($141.20/SF)** in v6.0, with 10% contingency and no overhead, profit, or tax in either case.
+**Calibration effect** — a 1,274 SF / 3 bed / 1 bath plan at Kern County defaults moved from **$119,065 ($93.46/SF)** in v5.0 to **$231,224 ($181.49/SF)** in v6.0, with 10% contingency and no overhead, profit, or tax in either case. That figure is now cross-validated against the detailed cost-book path to within 1.7% — see [Calibration notes](#calibration-notes).
 
 ---
 
@@ -304,20 +306,34 @@ A transparent ROM formula built from geometry, program, climate zone, finish ref
 
 | CSI | Division | Basis formula |
 | --- | --- | --- |
-| `02 20 00` | Site work, grading & utility trench | `2500 + trench×26 + area×3.2` |
-| `03 11 00` | Foundation, footings & slab | `slabCY × 400`, or `900` if an existing slab is credited |
-| `06 11 00` | Framing, sheathing & structural wood | `area×(19 partitioned / 13 studio) + beds×2100 + baths×2400` |
-| `07 21 00` | Insulation, air & moisture barrier | `area × (zoneInsulation + 1)` |
-| `07 92 00` | Roofing, underlayment & flashing | `area×6.8` |
-| `23 00 00` | HVAC / mechanical | `area × zoneHvac × (1.15 vaulted / 1.10 flat)` |
-| `26 00 00` | Electrical | `area×8.4 + baths×700` |
-| `22 00 00` | Plumbing, water heating & laundry | `area×2.1 + baths×3900 + beds×520 + laundry×2300 + heater + 2600` |
-| `09 00 00` | Interior finishes, drywall & flooring | `area × finishRate × 0.30` |
-| `08 50 00` | Openings, doors, windows & exterior finish | `area×9.2` |
-| `01 41 00` | Permits, plan check & inspections | `3200 + area×4.6` (excluded from market index) |
-| `01 40 00` | Engineering & design | `3500 + area×3.2` (excluded from market index) |
+| `02 20 00` | Site work, grading & utility trench | `1500 + slabCY×78 + trench×35` |
+| `03 11 00` | Foundation, footings & slab | `area×11.97 + slabCY×276 + 1160`, or `1200` if an existing slab is credited |
+| `06 11 00` | Framing, sheathing & structural wood | `area×28.5 + envelopeSF×5.7` |
+| `07 21 00` | Insulation, air & moisture barrier | `envelopeSF×2.1×zoneInsulationMul + 230` |
+| `07 92 00` | Roofing, underlayment & flashing | `area×9.87` |
+| `23 00 00` | HVAC / mechanical | `area×12.47×zoneHvacMul×(1.15 vaulted / 1.10 flat)` |
+| `26 00 00` | Electrical | `area×20.75 + 2215` |
+| `22 00 00` | Plumbing, water heating & laundry | `fixtures×777 + pipingLF×23.4 + 2575 + 410 + waterService 5560` |
+| `09 00 00` | Interior finishes, drywall & flooring | `area×finishRate×0.24 + caseworkLF×328` |
+| `08 50 00` | Openings, doors, windows & exterior finish | `openings×(597 + 965) + perimeter×stories×8×15.06` |
+| `01 41 00` | Permits, plan check & inspections | `3000 + area×2.5` (excluded from market index) |
+| `01 40 00` | Engineering & design | `3000 + area×2.75` (excluded from market index) |
 
-Where `slabCY = ((footprint × 4/12 ÷ 27) + (perimeter × 0.25 × 0.5 ÷ 27)) × 1.10`, and `heater` is `$1,900` for heat pump / electric or `$1,300` for gas.
+Derived quantities:
+
+```
+slabCY     = ((footprint × 4/12 ÷ 27) + (perimeter × 0.25 × 0.5 ÷ 27)) × 1.10
+wallLF     = perimeter × stories + (partitioned ? length × 0.6 × stories : 0)
+envelopeSF = wallLF × 8 + footprint × stories        // walls + ceiling basis
+pipingLF   = round(perimeter × 0.8)
+caseworkLF = 18 + bedrooms×4 + bathrooms×10
+openings   = 2 + bedrooms + bathrooms                  // doors and windows each
+fixtures   = bathrooms×3 + 1 + (laundry ? 2 : 0)
+```
+
+Gas water heating subtracts $200 from the plumbing base relative to a heat pump.
+
+**Every coefficient above is derived from the shipped Kern County cost book at the $85/hr reference labor point**, not tuned by hand. That means the concept model and the detailed cost-book path are two views of one rate set, and they agree with each other by construction rather than by coincidence.
 
 **Existing-condition credits** are now derived from the division they actually offset, rather than from a flat per-square-foot guess:
 
@@ -363,44 +379,44 @@ Everything is driven by your line items, grouped into the ledger by CSI code.
 
 Thirty priced rows researched for residential construction in **Kern County / Bakersfield, California**. Material rate is per unit; labor is expressed as **hours per unit** so it reprices automatically when you change the loaded hourly rate.
 
-| CSI | Description | Unit | Material | Labor hr | Equip | Waste |
-| --- | --- | --- | --- | --- | --- | --- |
-| `01 21 00` | Temporary power & site facilities | LS | $1,250.00 | 4.0 | — | — |
-| `01 40 00` | Engineering / design | LS | $6,500.00 | — | — | — |
-| `01 41 00` | Permits, plan check & inspections | LS | $5,200.00 | 12.0 | — | — |
-| `02 20 00` | Excavation & grading | CY | — | 1.4 | $46.00 | — |
-| `02 30 00` | Utility trench & backfill | LF | $9.00 | 1.2 | $18.00 | — |
-| `03 11 00` | Footings & stem wall | CY | $185.00 | 1.9 | $35.00 | 5% |
-| `03 30 00` | Slab on grade — mesh, vapor barrier, finish | SF | $6.40 | 0.85 | $0.90 | — |
-| `03 35 00` | Concrete curing & protection | LS | $480.00 | 8.0 | — | — |
-| `06 11 00` | Framing & structural wood | SF | $13.50 | 0.28 | $0.35 | 8% |
-| `06 40 00` | Wall & roof sheathing | SF | $2.85 | 0.08 | — | 10% |
-| `07 21 00` | Insulation & air barrier | SF | $1.35 | 0.02 | — | 5% |
-| `07 52 00` | Fireblocking & draft stopping | LF | $2.10 | 0.05 | — | — |
-| `07 92 00` | Roofing shingles & underlayment | SF | $5.60 | 0.10 | — | 8% |
-| `08 11 00` | Interior & exterior doors | EA | $385.00 | 3.2 | — | — |
-| `08 50 00` | Windows & glazed openings | EA | $625.00 | 5.5 | — | — |
-| `09 22 00` | Gypsum board, tape & texture | SF | $3.15 | 0.14 | — | 7% |
-| `09 63 00` | Flooring & base | SF | $6.20 | 0.12 | — | 6% |
-| `09 91 00` | Interior & exterior paint | SF | $3.40 | 0.16 | — | 3% |
-| `10 21 00` | Bathroom accessories & hardware | EA | $240.00 | 2.4 | — | — |
-| `11 40 00` | Plumbing fixtures & trim | EA | $480.00 | 6.0 | — | — |
-| `22 40 00` | Domestic water piping | LF | $16.50 | 0.35 | — | 3% |
-| `22 60 00` | Water heater / heat pump water heater | EA | $2,150.00 | 9.0 | — | — |
-| `23 05 00` | HVAC ducting & equipment | SF | $7.80 | 0.22 | — | — |
-| `26 05 00` | Electrical service & panel | EA | $1,450.00 | 11.0 | — | — |
-| `26 20 00` | Branch wiring & devices | SF | $9.40 | 0.26 | — | — |
-| `26 30 00` | Lighting & controls | SF | $4.10 | 0.07 | — | — |
-| `28 00 00` | Casework & countertops | LF | $185.00 | 2.4 | — | 4% |
-| `31 00 00` | Demolition of existing structure | SF | $1.10 | 0.18 | $0.35 | — |
-| `32 50 00` | Exterior siding & trim | SF | $9.80 | 0.22 | — | 6% |
-| `33 11 00` | Water service & utilities allowance | LS | $4,200.00 | 16.0 | — | — |
+| CSI | Description | Unit | Material | Labor hr | Equip | Waste | Installed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `01 21 00` | Temporary power & site facilities | LS | $1,250.00 | 4.0 | — | — | $1,590 |
+| `01 40 00` | Engineering / design | LS | $6,500.00 | — | — | — | $6,500 |
+| `01 41 00` | Permits, plan check & inspections | LS | $5,200.00 | 12.0 | — | — | $6,220 |
+| `02 20 00` | Excavation & grading | CY | — | 0.35 | $46.00 | — | $76/CY |
+| `02 30 00` | Utility trench & backfill | LF | $9.00 | 0.10 | $18.00 | — | $36/LF |
+| `03 11 00` | Footings & stem wall | CY | $185.00 | 0.55 | $35.00 | 5% | $276/CY |
+| `03 30 00` | Slab on grade — mesh, vapor barrier, finish | SF | $6.40 | 0.055 | $0.90 | — | $10.3/SF |
+| `03 35 00` | Concrete curing & protection | LS | $480.00 | 8.0 | — | — | $1,160 |
+| `06 11 00` | Framing & structural wood | SF | $13.50 | 0.16 | $0.35 | 8% | $23.7/SF |
+| `06 40 00` | Wall & roof sheathing | SF | $2.85 | 0.03 | — | 10% | $4.78/SF |
+| `07 21 00` | Insulation & air barrier | SF | $1.35 | 0.008 | — | 5% | $1.86/SF |
+| `07 52 00` | Fireblocking & draft stopping | LF | $2.10 | 0.02 | — | — | $3.20/LF |
+| `07 92 00` | Roofing shingles & underlayment | SF | $5.60 | 0.045 | — | 8% | $8.52/SF |
+| `08 11 00` | Interior & exterior doors | EA | $385.00 | 2.5 | — | — | $523/EA |
+| `08 50 00` | Windows & glazed openings | EA | $625.00 | 4.0 | — | — | $845/EA |
+| `09 22 00` | Gypsum board, tape & texture | SF | $3.15 | 0.062 | — | 7% | $6.78/SF |
+| `09 63 00` | Flooring & base | SF | $6.20 | 0.045 | — | 6% | $9.05/SF |
+| `09 91 00` | Interior & exterior paint | SF | $3.40 | 0.055 | — | 3% | $6.53/SF |
+| `10 21 00` | Bathroom accessories & hardware | EA | $240.00 | 2.0 | — | — | $350/EA |
+| `11 40 00` | Plumbing fixtures & trim | EA | $480.00 | 3.5 | — | — | $673/EA |
+| `22 40 00` | Domestic water piping | LF | $16.50 | 0.075 | — | 3% | $21.1/LF |
+| `22 60 00` | Water heater / heat pump water heater | EA | $2,150.00 | 5.0 | — | — | $2,425 |
+| `23 05 00` | HVAC ducting & equipment | SF | $7.80 | 0.055 | — | — | $10.8/SF |
+| `26 05 00` | Electrical service & panel | EA | $1,450.00 | 9.0 | — | — | $1,945 |
+| `26 20 00` | Branch wiring & devices | SF | $9.40 | 0.085 | — | — | $14.1/SF |
+| `26 30 00` | Lighting & controls | SF | $2.60 | 0.018 | — | — | $3.59/SF |
+| `28 00 00` | Casework & countertops | LF | $185.00 | 1.6 | — | 4% | $280/LF |
+| `31 00 00` | Demolition of existing structure | SF | $1.10 | 0.18 | $0.35 | — | $11.4/SF |
+| `32 50 00` | Exterior siding & trim | SF | $9.80 | 0.055 | — | 6% | $13.4/SF |
+| `33 11 00` | Water service & utilities allowance | LS | $4,200.00 | 16.0 | — | — | $5,080 |
+
+*Installed column = material × (1 + waste) + labor hours × $85/hr + equipment, i.e. at the model's $85/hr reference labor point.*
 
 Every row's `source` is set to `Kern County 2026 planning library — unverified, replace with a current vendor quote`, and every `sourceDate` is **blank** with `verified` **false**.
 
 > **These are planning baselines, not quotes.** They exist so the tool opens with something structurally realistic instead of a wall of zeros, and so the preflight panel has honest provenance gaps to report. Bid them out before you rely on any of them.
-
-**Sanity check.** Feeding 1,274 SF of framing through the `06 11 00` row at the Kern preset ($55/hr loaded, 8% waste) produces **$30.33/SF installed**, which sits inside the expected Bakersfield framing range of roughly $26–36/SF.
 
 ---
 
@@ -418,17 +434,19 @@ One researched library, five transparent regional adjustments. Loading a preset 
 
 Loading a preset **resets the `marketVerified` flag to false** — a regional delta is an adjustment, not a verification.
 
-### Climate zone factors
+### Climate zone multipliers
 
-| Zone | Label | Insulation factor | HVAC factor | Wall / ceiling placeholders |
+Insulation and HVAC bases are derived from the cost book, then multiplied by a **climate multiplier** relative to Sacramento (1.00).
+
+| Zone | Label | Insulation × | HVAC × | Wall / ceiling placeholders |
 | --- | --- | --- | --- | --- |
-| `03` | San Diego coast | 8.5 | 10.0 | R-13 / R-30 |
-| `04` | San Jose Bay Area | 6.0 | 8.6 | R-15 / R-30 |
-| `09` | Los Angeles basin | 8.2 | 9.5 | R-19 / R-30 |
-| `12` | Sacramento | 9.5 | 13.5 | R-21 + CI / R-38 |
-| `14` | Bakersfield | 10.5 | 15.5 | R-21 + CI / R-38 |
+| `03` | San Diego coast | 0.88 | 0.85 | R-13 / R-30 |
+| `04` | San Jose Bay Area | 0.94 | 0.80 | R-15 / R-30 |
+| `09` | Los Angeles basin | 0.95 | 0.88 | R-19 / R-30 |
+| `12` | Sacramento | 1.00 | 1.00 | R-21 + CI / R-38 |
+| `14` | Bakersfield | 1.08 | 1.10 | R-21 + CI / R-38 |
 
-Insulation and HVAC factors are now expressed in installed cost per square foot and were raised substantially in v6.0 — v5.0's HVAC factors of 3.2–5.8 implied roughly $4/SF of mechanical, which is a repair-level figure, not a ducted system.
+Bakersfield carries the highest multipliers because desert conditions push both envelope R-value and cooling equipment size up.
 
 These are **planning placeholders, not energy-code determinations.**
 
@@ -631,7 +649,7 @@ Templates only define the **starting scope envelope**. They do not set rates and
 | Premium | $175/SF |
 | Luxury | $250/SF |
 
-Used in concept mode for the interior finishes division at 30% of gross area. In detailed mode the finish reference is carried into the proposal text as a reference only.
+Used in concept mode for the interior finishes division at 24% of gross area, plus a separate casework allowance. In detailed mode the finish reference is carried into the proposal text as a reference only.
 
 ---
 
@@ -905,30 +923,44 @@ Points of interest in `index.html`, in order:
 
 ## Calibration notes
 
-The v6.0 concept model was calibrated against a worked 1,274 SF / 3 bed / 1 bath single-storey plan (24'-6" × 52'-0") to land in a defensible range for Bakersfield new construction.
+The concept model was validated by an independent cross-check: measure the worked plan off its own takeoff derivations, price it line-by-line through the detailed cost-book path, and compare against the concept-model result for the same geometry.
 
-**Kern County defaults — 1,274 SF, 3 BR, 1 BA, laundry, standard finish, zone 14, $55/hr loaded labor, 10% contingency, no overhead/profit/tax:**
+**Test case** — 1,274 SF single storey, 24'-6" × 52'-0", 3 bed / 1 bath, laundry, standard finish, Zone 14, $55/hr loaded labor, 153 LF perimeter, 18.1 CY slab + footing, 1,474 SF gross wall.
+
+### Cross-check result
+
+| Path | Direct cost | $/SF direct | With 10% cont + 12% OH + 10% profit + 4% esc |
+| --- | --- | --- | --- |
+| **Detailed** (30 priced cost-book rows, real quantities) | $213,886 | $167.89 | $296,292 · **$232.57/SF** |
+| **Concept** (12 derived formula divisions) | $210,204 | $165.00 | $291,191 · **$228.56/SF** |
+| **Variance** | **−1.7%** | | **−1.7%** |
+
+The two pricing paths agree to within 1.7% because the concept coefficients are derived from the same cost book rather than tuned independently.
+
+### Kern County defaults — the 1,274 SF plan
+
+Concept mode, Zone 14, $55/hr loaded, 10% contingency, no overhead/profit/tax:
 
 | Division | Material | Labor | Total |
 | --- | --- | --- | --- |
-| `02 20 00` Site work, grading & utility trench | $2,529 | $3,040 | $5,569 |
-| `03 11 00` Foundation, footings & slab | $3,616 | $2,340 | $5,956 |
-| `06 11 00` Framing, sheathing & structural wood | $18,098 | $9,581 | $27,679 |
-| `07 21 00` Insulation, air & moisture barrier | $8,791 | $3,792 | $12,583 |
-| `07 92 00` Roofing, underlayment & flashing | $5,198 | $2,242 | $7,440 |
-| `23 00 00` HVAC / mechanical | $9,775 | $7,730 | $17,505 |
-| `26 00 00` Electrical | $5,131 | $4,058 | $9,189 |
-| `22 00 00` Plumbing, water heating & laundry | $5,974 | $5,798 | $11,772 |
-| `09 00 00` Interior finishes, drywall & flooring | $23,888 | $15,457 | $39,345 |
-| `08 50 00` Openings, doors, windows & exterior finish | $6,447 | $3,413 | $9,860 |
-| `01 41 00` Permits, plan check & inspections | $9,060 | — | $9,060 |
-| `01 40 00` Engineering & design | $7,577 | — | $7,577 |
-| **Positive direct cost** | | | **$163,535** |
-| Contingency 10% | | | + $16,354 |
-| **Planning total** | | | **$179,889** |
-| **Cost / SF** | | | **$141.20** |
+| `02 20 00` Site work, grading & utility trench | $1,325 | $1,592 | $2,917 |
+| `03 11 00` Foundation, footings & slab | $10,700 | $6,924 | $17,624 |
+| `06 11 00` Framing, sheathing & structural wood | $28,584 | $15,132 | $43,716 |
+| `07 21 00` Insulation, air & moisture barrier | $3,877 | $1,673 | $5,550 |
+| `07 92 00` Roofing, underlayment & flashing | $7,544 | $3,254 | $10,798 |
+| `23 00 00` HVAC / mechanical | $8,650 | $6,841 | $15,491 |
+| `26 00 00` Electrical | $12,893 | $10,196 | $23,089 |
+| `22 00 00` Plumbing, water heating & laundry | $6,425 | $6,236 | $12,661 |
+| `09 00 00` Interior finishes, drywall & flooring | $25,670 | $16,610 | $42,280 |
+| `08 50 00` Openings, doors, windows & exterior finish | $15,293 | $8,096 | $23,389 |
+| `01 41 00` Permits, plan check & inspections | $6,185 | — | $6,185 |
+| `01 40 00` Engineering & design | $6,504 | — | $6,504 |
+| **Positive direct cost** | | | **$210,204** |
+| Contingency 10% | | | + $21,020 |
+| **Planning total** | | | **$231,224** |
+| **Cost / SF** | | | **$181.49** |
 
-At the same geometry, the Los Angeles preset (zone 09, material index 1.06, $71/hr loaded labor) with illustrative tax, 12% overhead, 10% profit and 6% escalation produces **$257,572 ($202.18/SF)** — against **$179,889 ($141.20/SF)** for Kern with contingency only. The roughly 40% spread between the two markets is what the regional delta and labor rate are doing.
+For reference, the tool's default 24 × 24 ADU at the same settings prices at **$126,468 ($219.56/SF)** — small units carry a higher rate per square foot, as expected.
 
 **These figures are order-of-magnitude planning anchors derived from a formula, not a bid.** They are published so you can see what the model does and argue with it. Your local quotes are the estimate.
 

@@ -210,11 +210,11 @@
   const FINISH_RATES={economy:85,standard:125,premium:175,luxury:250};
   const FINISH_LABELS={economy:'Economy',standard:'Standard',premium:'Premium',luxury:'Luxury'};
   const CLIMATE={
-    '03':{label:'Zone 03 · San Diego coast',insulation:8.5,hvac:10.0,wall:'R-13 placeholder',ceiling:'R-30 placeholder'},
-    '04':{label:'Zone 04 · San Jose Bay Area',insulation:6.0,hvac:8.6,wall:'R-15 placeholder',ceiling:'R-30 placeholder'},
-    '09':{label:'Zone 09 · Los Angeles basin',insulation:8.2,hvac:9.5,wall:'R-19 placeholder',ceiling:'R-30 placeholder'},
-    '12':{label:'Zone 12 · Sacramento',insulation:9.5,hvac:13.5,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'},
-    '14':{label:'Zone 14 · Bakersfield',insulation:10.5,hvac:15.5,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'}
+    '03':{label:'Zone 03 · San Diego coast',insulation:.88,hvac:.85,wall:'R-13 placeholder',ceiling:'R-30 placeholder'},
+    '04':{label:'Zone 04 · San Jose Bay Area',insulation:.94,hvac:.80,wall:'R-15 placeholder',ceiling:'R-30 placeholder'},
+    '09':{label:'Zone 09 · Los Angeles basin',insulation:.95,hvac:.88,wall:'R-19 placeholder',ceiling:'R-30 placeholder'},
+    '12':{label:'Zone 12 · Sacramento',insulation:1.00,hvac:1.00,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'},
+    '14':{label:'Zone 14 · Bakersfield',insulation:1.08,hvac:1.10,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'}
   };
   const SPLITS={site:{mat:.35,lab:.65},foundation:{mat:.50,lab:.50},framing:{mat:.55,lab:.45},insulation:{mat:.60,lab:.40},roofing:{mat:.60,lab:.40},hvac:{mat:.45,lab:.55},electrical:{mat:.45,lab:.55},plumbing:{mat:.40,lab:.60},interior:{mat:.50,lab:.50},exterior:{mat:.55,lab:.45},permits:{mat:1,lab:0},engineering:{mat:1,lab:0}};
   const SCOPE_OPTIONS=['Demolition & site preparation','Foundation / slab work','Structural framing','Roofing modifications','Electrical rough-in & finish','Plumbing rough-in & finish','HVAC installation','Insulation','Drywall, tape & texture','Doors & windows','Flooring','Cabinets & countertops','Interior / exterior paint','Appliance installation','Final clean & punch list'];
@@ -223,32 +223,32 @@
     ['01 21 00','Temporary power & site facilities','LS',1250,4,0,0],
     ['01 40 00','Engineering / design','LS',6500,0,0,0],
     ['01 41 00','Permits, plan check & inspections','LS',5200,12,0,0],
-    ['02 20 00','Excavation & grading','CY',0,1.4,46,0],
-    ['02 30 00','Utility trench & backfill','LF',9,1.2,18,0],
-    ['03 11 00','Footings & stem wall','CY',185,1.9,35,5],
-    ['03 30 00','Slab on grade — mesh, vapor barrier, finish','SF',6.4,0.85,0.9,0],
+    ['02 20 00','Excavation & grading','CY',0,0.35,46,0],
+    ['02 30 00','Utility trench & backfill','LF',9,0.10,18,0],
+    ['03 11 00','Footings & stem wall','CY',185,0.55,35,5],
+    ['03 30 00','Slab on grade — mesh, vapor barrier, finish','SF',6.4,0.055,0.9,0],
     ['03 35 00','Concrete curing & protection','LS',480,8,0,0],
-    ['06 11 00','Framing & structural wood','SF',13.5,0.28,0.35,8],
-    ['06 40 00','Wall & roof sheathing','SF',2.85,0.08,0,10],
-    ['07 21 00','Insulation & air barrier','SF',1.35,0.02,0,5],
-    ['07 52 00','Fireblocking & draft stopping','LF',2.1,0.05,0,0],
-    ['07 92 00','Roofing shingles & underlayment','SF',5.6,0.1,0,8],
-    ['08 11 00','Interior & exterior doors','EA',385,3.2,0,0],
-    ['08 50 00','Windows & glazed openings','EA',625,5.5,0,0],
-    ['09 22 00','Gypsum board, tape & texture','SF',3.15,0.14,0,7],
-    ['09 63 00','Flooring & base','SF',6.2,0.12,0,6],
-    ['09 91 00','Interior & exterior paint','SF',3.4,0.16,0,3],
-    ['10 21 00','Bathroom accessories & hardware','EA',240,2.4,0,0],
-    ['11 40 00','Plumbing fixtures & trim','EA',480,6,0,0],
-    ['22 40 00','Domestic water piping','LF',16.5,0.35,0,3],
-    ['22 60 00','Water heater / heat pump water heater','EA',2150,9,0,0],
-    ['23 05 00','HVAC ducting & equipment','SF',7.8,0.22,0,0],
-    ['26 05 00','Electrical service & panel','EA',1450,11,0,0],
-    ['26 20 00','Branch wiring & devices','SF',9.4,0.26,0,0],
-    ['26 30 00','Lighting & controls','SF',4.1,0.07,0,0],
-    ['28 00 00','Casework & countertops','LF',185,2.4,0,4],
+    ['06 11 00','Framing & structural wood','SF',13.5,0.16,0.35,8],
+    ['06 40 00','Wall & roof sheathing','SF',2.85,0.03,0,10],
+    ['07 21 00','Insulation & air barrier','SF',1.35,0.008,0,5],
+    ['07 52 00','Fireblocking & draft stopping','LF',2.1,0.02,0,0],
+    ['07 92 00','Roofing shingles & underlayment','SF',5.6,0.045,0,8],
+    ['08 11 00','Interior & exterior doors','EA',385,2.5,0,0],
+    ['08 50 00','Windows & glazed openings','EA',625,4.0,0,0],
+    ['09 22 00','Gypsum board, tape & texture','SF',3.15,0.062,0,7],
+    ['09 63 00','Flooring & base','SF',6.2,0.045,0,6],
+    ['09 91 00','Interior & exterior paint','SF',3.4,0.055,0,3],
+    ['10 21 00','Bathroom accessories & hardware','EA',240,2.0,0,0],
+    ['11 40 00','Plumbing fixtures & trim','EA',480,3.5,0,0],
+    ['22 40 00','Domestic water piping','LF',16.5,0.075,0,3],
+    ['22 60 00','Water heater / heat pump water heater','EA',2150,5,0,0],
+    ['23 05 00','HVAC ducting & equipment','SF',7.8,0.055,0,0],
+    ['26 05 00','Electrical service & panel','EA',1450,9,0,0],
+    ['26 20 00','Branch wiring & devices','SF',9.4,0.085,0,0],
+    ['26 30 00','Lighting & controls','SF',2.6,0.018,0,0],
+    ['28 00 00','Casework & countertops','LF',185,1.6,0,4],
     ['31 00 00','Demolition of existing structure','SF',1.1,0.18,0.35,0],
-    ['32 50 00','Exterior siding & trim','SF',9.8,0.22,0,6],
+    ['32 50 00','Exterior siding & trim','SF',9.8,0.055,0,6],
     ['33 11 00','Water service & utilities allowance','LS',4200,16,0,0]
   ];
   const buildBook=(rows,materialDelta=1)=>rows.map((r,i)=>({id:`book-${i+1}`,csi:r[0],description:r[1],unit:r[2],materialRate:Math.round(r[3]*materialDelta*100)/100,laborHours:r[4],equipmentRate:Math.round(r[5]*materialDelta*100)/100,wastePct:r[6],source:RATE_SOURCE,sourceDate:'',verified:false}));
@@ -311,22 +311,27 @@
   }
 
   function calcConcept(){
-    const p=state.project,s=state.settings,footprint=p.length*p.width,area=footprint*(p.stories||1),perim=2*(p.length+p.width),cl=CLIMATE[p.zone]||CLIMATE['14'],partitioned=p.layout==='partitioned',factor=s.marketFactor,labMult=(s.laborRate/85)*(1+s.laborBurden/100);
+    const p=state.project,s=state.settings,levels=p.stories||1,footprint=p.length*p.width,area=footprint*levels,perim=2*(p.length+p.width),cl=CLIMATE[p.zone]||CLIMATE['14'],partitioned=p.layout==='partitioned',factor=s.marketFactor,labMult=(s.laborRate/85)*(1+s.laborBurden/100);
     const finishRate=FINISH_RATES[p.finish]||125;
     const slabCY=((footprint*(4/12)/27)+(perim*.25*.5/27))*1.10;
+    // Program counts shared by the concept bases. Coefficients below are derived
+    // from the Kern County cost book at the $85/hr reference labor point.
+    const wallLF=perim*levels+(partitioned?p.length*.6*levels:0),envSF=wallLF*8+footprint*levels;
+    const pipingLF=Math.round(perim*.8),caseworkLF=18+p.bedrooms*4+p.bathrooms*10;
+    const openings=2+p.bedrooms+p.bathrooms,fixtures=p.bathrooms*3+1+(p.laundry?2:0);
     const bases=[
-      {csi:'02 20 00',scope:'Site work, grading & utility trench',basis:'Site allowance + entered trench length + gross area',key:'site',base:Math.round(2500+p.trench*26+area*3.2)},
-      {csi:'03 11 00',scope:'Foundation, footings & slab',basis:p.slab?'Existing foundation credited — verification allowance only':'4-in slab + nominal perimeter stem wall, 10% factor',key:'foundation',base:p.slab?900:Math.round(slabCY*400)},
-      {csi:'06 11 00',scope:'Framing, sheathing & structural wood',basis:'Area, partition layout, bedrooms and bathrooms',key:'framing',base:Math.round(area*(partitioned?19:13)+(partitioned?p.bedrooms*2100:0)+p.bathrooms*2400)},
-      {csi:'07 21 00',scope:'Insulation, air & moisture barrier',basis:`${cl.label} allowance + area factor`,key:'insulation',base:Math.round(area*(cl.insulation+1))},
-      {csi:'07 92 00',scope:'Roofing, underlayment & flashing',basis:'Area-based roof plane allowance; pitch, overhang and penetrations not modelled',key:'roofing',base:Math.round(area*6.8)},
-      {csi:'23 00 00',scope:'HVAC / mechanical',basis:'Climate-zone rate × ceiling configuration',key:'hvac',base:Math.round(area*cl.hvac*(p.ceiling==='vaulted'?1.15:1.10))},
-      {csi:'26 00 00',scope:'Electrical',basis:'Area branch wiring + devices + bathroom and service allowance',key:'electrical',base:Math.round(area*8.4+p.bathrooms*700)},
-      {csi:'22 00 00',scope:'Plumbing, water heating & laundry',basis:`Bathrooms, bedrooms, laundry hookup and ${p.heating==='gas'?'gas':'heat pump'} water heating`,key:'plumbing',base:Math.round(area*2.1+p.bathrooms*3900+p.bedrooms*520+(p.laundry?2300:0)+(p.heating==='gas'?1300:1900)+2600)},
-      {csi:'09 00 00',scope:'Interior finishes, drywall & flooring',basis:`${FINISH_LABELS[p.finish]} finish reference · ${money(finishRate)}/SF × 30%`,key:'interior',base:Math.round(area*finishRate*.30)},
-      {csi:'08 50 00',scope:'Openings, doors, windows & exterior finish',basis:'Area-based doors, windows, siding and exterior paint allowance',key:'exterior',base:Math.round(area*9.2)},
-      {csi:'01 41 00',scope:'Permits, plan check & inspections',basis:'Generic planning allowance; jurisdiction fees vary',key:'permits',noIndex:true,base:Math.round(3200+area*4.6)},
-      {csi:'01 40 00',scope:'Engineering & design',basis:'Concept design / engineering allowance',key:'engineering',noIndex:true,base:Math.round(3500+area*3.2)}
+      {csi:'02 20 00',scope:'Site work, grading & utility trench',basis:'Site allowance + excavation volume + entered trench length',key:'site',base:Math.round(1500+slabCY*78+p.trench*35)},
+      {csi:'03 11 00',scope:'Foundation, footings & slab',basis:p.slab?'Existing foundation credited — verification allowance only':'4-in slab over footprint + nominal perimeter stem wall, plus curing',key:'foundation',base:p.slab?1200:Math.round(area*11.97+slabCY*276+1160)},
+      {csi:'06 11 00',scope:'Framing, sheathing & structural wood',basis:'Floor area framing + wall and roof sheathing envelope',key:'framing',base:Math.round(area*28.5+envSF*5.7)},
+      {csi:'07 21 00',scope:'Insulation, air & moisture barrier',basis:`${cl.label} envelope multiplier`,key:'insulation',base:Math.round(envSF*2.1*cl.insulation+230)},
+      {csi:'07 92 00',scope:'Roofing, underlayment & flashing',basis:'Area-based roof plane allowance; pitch, overhang and penetrations not modelled',key:'roofing',base:Math.round(area*9.87)},
+      {csi:'23 00 00',scope:'HVAC / mechanical',basis:`${cl.label} equipment multiplier × ceiling configuration`,key:'hvac',base:Math.round(area*12.47*cl.hvac*(p.ceiling==='vaulted'?1.15:1.10))},
+      {csi:'26 00 00',scope:'Electrical',basis:'Branch wiring, lighting and devices + service and panel',key:'electrical',base:Math.round(area*20.75+2215)},
+      {csi:'22 00 00',scope:'Plumbing, water heating & laundry',basis:`${fixtures} fixture allowance, piping, water service and ${p.heating==='gas'?'gas':'heat pump'} water heating`,key:'plumbing',base:Math.round(fixtures*777+pipingLF*23.4+2575+410+(p.heating==='gas'?-200:0)+5560)},
+      {csi:'09 00 00',scope:'Interior finishes, drywall & flooring',basis:`${FINISH_LABELS[p.finish]} finish reference · ${money(finishRate)}/SF × 24%, plus casework`,key:'interior',base:Math.round(area*finishRate*.24+caseworkLF*328)},
+      {csi:'08 50 00',scope:'Openings, doors, windows & exterior finish',basis:`${openings} door and ${openings} window allowance + siding on exterior wall`,key:'exterior',base:Math.round(openings*597+openings*965+perim*levels*8*15.06)},
+      {csi:'01 41 00',scope:'Permits, plan check & inspections',basis:'Generic planning allowance; jurisdiction fees vary',key:'permits',noIndex:true,base:Math.round(3000+area*2.5)},
+      {csi:'01 40 00',scope:'Engineering & design',basis:'Concept design / engineering allowance',key:'engineering',noIndex:true,base:Math.round(3000+area*2.75)}
     ];
     const divisions=bases.map(r=>{const z=SPLITS[r.key],material=Math.round(r.base*z.mat*(r.noIndex?1:factor)),labor=Math.round(r.base*z.lab*labMult);return{...r,material,labor,equipment:0,total:material+labor}});
     const materialTotal=divisions.reduce((a,r)=>a+r.material,0),laborTotal=divisions.reduce((a,r)=>a+r.labor,0),positiveDirect=materialTotal+laborTotal;
