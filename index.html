@@ -33,7 +33,7 @@
   <header class="topbar">
     <div class="brand" aria-label="SOVR Build OS">
       <svg class="mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="3" width="34" height="34" rx="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 27.5 20 11l10 16.5M14 21h12M17 27.5h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="11" r="2" fill="currentColor"/></svg>
-      <div><p class="brand-name">SOVR <span>BUILD OS</span></p><span class="brand-caption">Estimating workbench · v5.0</span></div>
+      <div><p class="brand-name">SOVR <span>BUILD OS</span></p><span class="brand-caption">Estimating workbench · v6.0</span></div>
     </div>
     <div class="top-meta"><span class="local"><i class="dot" id="save-dot"></i><span id="save-status">Local workspace</span></span><i class="divider"></i><span>Local-only · no cloud sync</span></div>
     <div class="actions">
@@ -76,6 +76,7 @@
           <div class="grid3"><div class="field"><label for="length">Length · ft</label><input id="length" data-input type="number" min="8" max="250" step="0.5" value="24"></div><div class="field"><label for="width">Width · ft</label><input id="width" data-input type="number" min="8" max="250" step="0.5" value="24"></div><div class="field"><label for="stories">Stories</label><input id="stories" data-input type="number" min="1" max="4" step="1" value="1"></div></div>
           <div class="readout"><span>Calculated gross area</span><strong id="area-readout">576 SF</strong></div>
           <div class="grid2" style="margin-top:8px"><div class="field"><label for="bedrooms">Bedrooms</label><input id="bedrooms" data-input type="number" min="0" max="10" step="1" value="1"></div><div class="field"><label for="bathrooms">Bathrooms</label><input id="bathrooms" data-input type="number" min="1" max="10" step="1" value="1"></div></div>
+          <label class="check" style="margin-top:9px"><input id="laundry" data-input type="checkbox" checked><span><strong>Laundry hookup or laundry room</strong><small>Adds plumbing and electrical allowance for washer, dryer, supply and drain.</small></span></label>
           <div class="field"><label for="layout">Interior layout</label><select id="layout" data-input><option value="studio">Open studio</option><option value="partitioned" selected>Partitioned rooms</option></select></div>
           <div class="grid2"><div class="field"><label for="finish">Finish reference</label><select id="finish" data-input><option value="economy">Economy · $85/SF</option><option value="standard" selected>Standard · $125/SF</option><option value="premium">Premium · $175/SF</option><option value="luxury">Luxury · $250/SF</option></select></div><div class="field"><label for="zone">Climate zone</label><select id="zone" data-input><option value="03">03 · San Diego coast</option><option value="04">04 · San Jose Bay</option><option value="09" selected>09 · LA basin</option><option value="12">12 · Sacramento</option><option value="14">14 · Bakersfield</option></select></div></div>
           <div class="grid2"><div class="field"><label for="heating">Water heating</label><select id="heating" data-input><option value="electric">Heat pump / electric</option><option value="gas">Gas tank</option></select></div><div class="field"><label for="ceiling">Ceiling / roof</label><select id="ceiling" data-input><option value="flat">Flat</option><option value="vaulted">Vaulted / exposed</option></select></div></div>
@@ -87,11 +88,13 @@
           <div class="form-note"><strong>Two modes:</strong> the concept model is a transparent ROM formula using unverified placeholders. The detailed mode uses your editable quantities, cost book and quote provenance.</div>
         </section>
         <section class="field-section"><h3 class="section-title"><span class="section-num">04</span> Market &amp; labor factors</h3>
-          <div class="grid2"><div class="field"><label for="market-factor">Market index <span class="hint">0.70–1.50</span></label><input id="market-factor" data-input type="number" min="0.7" max="1.5" step="0.01" value="1.00"></div><div class="field"><label for="market-date">Index as-of</label><input id="market-date" data-input type="date"></div></div>
+          <div class="field"><label for="market-preset">Regional rate preset</label><select id="market-preset" data-preset><option value="kern">Kern County · Bakersfield — baseline library</option><option value="la">Los Angeles basin</option><option value="sac">Sacramento valley</option><option value="sd">San Diego coast</option><option value="bay">San Jose Bay area</option></select></div>
+          <button class="btn small dark" type="button" id="apply-preset" style="margin:0 0 10px">Load preset rate library &amp; labor</button>
+          <div class="grid2"><div class="field"><label for="market-factor">Material market index <span class="hint">0.70–1.50</span></label><input id="market-factor" data-input type="number" min="0.7" max="1.5" step="0.01" value="1.00"></div><div class="field"><label for="market-date">Index as-of</label><input id="market-date" data-input type="date"></div></div>
           <div class="field"><label for="market-source">Market index source</label><input id="market-source" data-input type="text" maxlength="120" placeholder="Source / internal market study"></div>
           <label class="check"><input id="market-verified" data-input type="checkbox"><span><strong>Market factor reviewed</strong><small>Check only after confirming it applies to this site and date.</small></span></label>
           <div class="grid2" style="margin-top:8px"><div class="field"><label for="labor-rate">Base labor · $/hr</label><input id="labor-rate" data-input type="number" min="20" max="250" step="1" value="85"></div><div class="field"><label for="labor-burden">Labor burden · %</label><input id="labor-burden" data-input type="number" min="0" max="100" step="1" value="0"></div></div>
-          <p class="table-help">In detailed mode, labor cost = quantity × labor hours per unit × base rate × (1 + burden). Set burden to 0 if your hourly rate is already fully loaded.</p>
+          <p class="table-help">The market index applies to <strong>material and equipment only</strong>. Labor is driven by the base hourly rate and burden, because labor markets and material markets do not move together. Set burden to 0 if your hourly rate is already fully loaded.</p>
         </section>
         <section class="field-section"><h3 class="section-title"><span class="section-num">05</span> Commercial settings</h3>
           <div class="grid2"><div class="field"><label for="tax-rate">Tax on material/equip · %</label><input id="tax-rate" data-input type="number" min="0" max="20" step="0.1" value="0"></div><div class="field"><label for="contingency">Contingency · %</label><input id="contingency" data-input type="number" min="0" max="50" step="0.5" value="10"></div></div>
@@ -130,12 +133,13 @@
           <div class="subcard" style="margin-bottom:10px"><div class="grid2" style="align-items:end"><div class="field" style="margin:0"><label for="book-select">Add a rate-book item</label><select id="book-select"><option value="">Choose a cost-book rate…</option></select></div><button class="btn small dark" type="button" id="add-book-item">Add rate to estimate</button></div><p class="table-help" style="margin:7px 0 0">Use “Add concept allowances” once to create editable division allowances from the concept model. Those values remain unverified until replaced or supported by current pricing.</p></div>
           <div class="cards3" id="item-summary"></div>
           <div class="table-wrap"><table aria-label="Editable estimate line items"><thead><tr><th>CSI</th><th>Description</th><th>Type</th><th class="num">Qty</th><th>Unit</th><th class="num">Mat / unit</th><th class="num">Labor h / unit</th><th class="num">Equip / unit</th><th class="num">Waste %</th><th>Source / quote ref.</th><th>As-of</th><th>Verified</th><th>Class</th><th class="num">Extended</th><th></th></tr></thead><tbody id="item-rows"></tbody></table></div>
-          <p class="note"><strong>Calculation:</strong> material = quantity × material rate × (1 + waste) × market index. Labor = quantity × labor hours/unit × hourly rate × (1 + labor burden) × market index. Equipment = quantity × equipment/unit × market index. Tax uses the configured taxable material/equipment basis. Contingency and overhead apply to positive direct base cost before credits; profit applies to direct cost plus overhead; escalation applies to direct cost and configured adders. Verify contract/accounting policy. Credit rows reduce base cost; alternates and owner-supplied rows stay outside the base total.</p>
+          <p class="note"><strong>Calculation:</strong> material = quantity × material rate × (1 + waste) × material market index. Labor = quantity × labor hours/unit × hourly rate × (1 + labor burden). Equipment = quantity × equipment/unit × material market index. The market index is applied to material and equipment only — labor is set by the hourly rate and burden, since the two markets diverge. Tax uses the configured taxable material/equipment basis. Contingency and overhead apply to positive direct base cost before credits; profit applies to direct cost plus overhead; escalation applies to direct cost and configured adders. Verify contract/accounting policy. Credit rows reduce base cost; alternates and owner-supplied rows stay outside the base total.</p>
         </section>
 
         <section class="panel" id="pane-book" role="tabpanel" aria-labelledby="tab-book" tabindex="0" hidden>
           <div class="panelhead"><div><p class="eyebrow">Your prices · provenance included</p><h3>Editable regional cost book</h3><p>Enter current local material rates, labor hours, equipment, waste, source, and as-of date. “Verified” is a user attestation; it is not checked against an external feed.</p></div><div class="panel-actions"><button class="btn small" type="button" id="add-book-row">Add rate</button><button class="btn small" type="button" id="import-book-csv">Import CSV</button><button class="btn small" type="button" id="export-book-csv">Export CSV</button><input class="sr-only" type="file" id="ratebook-file" accept="text/csv,.csv"></div></div>
           <div class="cards3" id="book-stats"></div>
+          <div class="readiness" id="book-age-card"><div><strong id="book-age-title">Rate library provenance</strong><p id="book-age-note">Checking rate freshness…</p></div><span class="readiness-badge" id="book-age-badge">—</span></div>
           <div class="table-wrap"><table aria-label="Editable cost book"><thead><tr><th>CSI</th><th>Description</th><th>Unit</th><th class="num">Material / unit</th><th class="num">Labor h / unit</th><th class="num">Equip / unit</th><th class="num">Waste %</th><th>Source / vendor</th><th>As-of date</th><th>Verified</th><th></th></tr></thead><tbody id="book-rows"></tbody></table></div>
           <p class="note"><strong>Rate-book control:</strong> keep a source, date, market applicability, and quote reference for every production rate. Import/export CSV to maintain separate regional books; back up the full project JSON to preserve settings, estimates, scope, and revision history.</p>
         </section>
@@ -154,7 +158,7 @@
         </section>
 
         <section class="panel" id="pane-takeoffs" role="tabpanel" aria-labelledby="tab-takeoffs" tabindex="0" hidden>
-          <div class="panelhead"><div><p class="eyebrow">Conceptual coordination schedules</p><h3>Takeoffs &amp; trade schedules</h3><p>Dimension-derived planning quantities; replace with measured drawings, verified product data, and licensed trade design.</p></div><div class="panel-actions"><button class="btn small" type="button" data-print>Print this view</button></div></div>
+          <div class="panelhead"><div><p class="eyebrow">Conceptual coordination schedules</p><h3>Takeoffs &amp; trade schedules</h3><p>Dimension-derived planning quantities; replace with measured drawings, verified product data, and licensed trade design.</p></div><div class="panel-actions"><button class="btn small" type="button" id="export-takeoff-csv">Export takeoffs CSV</button><button class="btn small" type="button" data-print>Print this view</button></div></div>
           <div class="cards3" id="takeoff-stats"></div>
           <div class="subcard" style="margin-bottom:10px"><h4>Structural / envelope takeoffs</h4><div class="table-wrap"><table aria-label="Planning structural takeoffs"><thead><tr><th>Component</th><th class="num">Planning quantity</th><th>Basis / verification</th></tr></thead><tbody id="takeoff-rows"></tbody></table></div></div>
           <div class="subcard" style="margin-bottom:10px"><h4>Electrical coordination schedule</h4><p class="table-help">No load calculation or NEC design is performed.</p><div class="table-wrap"><table aria-label="Planning electrical schedule"><thead><tr><th>System / scope</th><th class="num">Qty.</th><th>Protection / rating</th><th>Conductor / design</th><th>Planning note</th></tr></thead><tbody id="electrical-rows"></tbody></table></div></div>
@@ -185,15 +189,15 @@
       </section>
     </div>
   </main>
-  <footer class="footer"><span><strong>SOVR Build OS v5.0</strong> · Configurable estimating workbench · Offline single-file edition</span><span>Concept / estimate aid only · <span id="year"></span></span></footer>
+  <footer class="footer"><span><strong>SOVR Build OS v6.0</strong> · Configurable estimating workbench · Offline single-file edition</span><span>Concept / estimate aid only · <span id="year"></span></span></footer>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <noscript><div style="margin:20px;padding:16px;background:#fff3cd;color:#433b25;border:1px solid #d8ad54">This estimator requires JavaScript for calculation, validation, and exports.</div></noscript>
 <script>
 (() => {
   'use strict';
-  const STORAGE_KEY='sovr-build-os-estimator-v5';
-  const LEGACY_KEY='sovr-build-os-estimator-v4-draft';
+  const STORAGE_KEY='sovr-build-os-estimator-v6';
+  const LEGACY_KEYS=['sovr-build-os-estimator-v5','sovr-build-os-estimator-v4-draft'];
   const TYPES={'adu-new':'ADU New Construction',garage:'Garage Conversion',addition:'Home Addition',kitchen:'Kitchen Remodel',bathroom:'Bathroom Remodel','whole-home':'Whole Home Renovation'};
   const TYPE_TEMPLATES={
     'adu-new':{length:24,width:24,bedrooms:1,bathrooms:1,layout:'partitioned',finish:'standard'},
@@ -206,20 +210,60 @@
   const FINISH_RATES={economy:85,standard:125,premium:175,luxury:250};
   const FINISH_LABELS={economy:'Economy',standard:'Standard',premium:'Premium',luxury:'Luxury'};
   const CLIMATE={
-    '03':{label:'Zone 03 · San Diego coast',insulation:7.5,hvac:3.8,wall:'R-13 placeholder',ceiling:'R-30 placeholder'},
-    '04':{label:'Zone 04 · San Jose Bay Area',insulation:5.2,hvac:3.2,wall:'R-15 placeholder',ceiling:'R-30 placeholder'},
-    '09':{label:'Zone 09 · Los Angeles basin',insulation:7.4,hvac:3.4,wall:'R-19 placeholder',ceiling:'R-30 placeholder'},
-    '12':{label:'Zone 12 · Sacramento',insulation:8.5,hvac:5.0,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'},
-    '14':{label:'Zone 14 · Bakersfield',insulation:9.4,hvac:5.8,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'}
+    '03':{label:'Zone 03 · San Diego coast',insulation:8.5,hvac:10.0,wall:'R-13 placeholder',ceiling:'R-30 placeholder'},
+    '04':{label:'Zone 04 · San Jose Bay Area',insulation:6.0,hvac:8.6,wall:'R-15 placeholder',ceiling:'R-30 placeholder'},
+    '09':{label:'Zone 09 · Los Angeles basin',insulation:8.2,hvac:9.5,wall:'R-19 placeholder',ceiling:'R-30 placeholder'},
+    '12':{label:'Zone 12 · Sacramento',insulation:9.5,hvac:13.5,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'},
+    '14':{label:'Zone 14 · Bakersfield',insulation:10.5,hvac:15.5,wall:'R-21 + CI placeholder',ceiling:'R-38 placeholder'}
   };
-  const SPLITS={civil:{mat:.40,lab:.60},framing:{mat:.55,lab:.45},insulation:{mat:.60,lab:.40},mep:{mat:.45,lab:.55},finishes:{mat:.50,lab:.50},permits:{mat:1,lab:0},engineering:{mat:1,lab:0}};
+  const SPLITS={site:{mat:.35,lab:.65},foundation:{mat:.50,lab:.50},framing:{mat:.55,lab:.45},insulation:{mat:.60,lab:.40},roofing:{mat:.60,lab:.40},hvac:{mat:.45,lab:.55},electrical:{mat:.45,lab:.55},plumbing:{mat:.40,lab:.60},interior:{mat:.50,lab:.50},exterior:{mat:.55,lab:.45},permits:{mat:1,lab:0},engineering:{mat:1,lab:0}};
   const SCOPE_OPTIONS=['Demolition & site preparation','Foundation / slab work','Structural framing','Roofing modifications','Electrical rough-in & finish','Plumbing rough-in & finish','HVAC installation','Insulation','Drywall, tape & texture','Doors & windows','Flooring','Cabinets & countertops','Interior / exterior paint','Appliance installation','Final clean & punch list'];
-  const SEED_BOOK=[
-    ['02 30 00','Civil work / utility trench','LF'],['03 30 00','Cast-in-place concrete','CY'],['06 11 00','Framing & structural wood','SF'],['07 21 00','Insulation & moisture barrier','SF'],['08 50 00','Windows / doors','EA'],['09 29 00','Drywall / finishes','SF'],['22 00 00','Plumbing / water heating','EA'],['23 00 00','HVAC / mechanical','EA'],['26 00 00','Electrical','SF'],['01 41 00','Permits / jurisdiction fees','LS'],['01 40 00','Engineering / design','LS']
-  ].map((r,i)=>({id:`book-${i+1}`,csi:r[0],description:r[1],unit:r[2],materialRate:0,laborHours:0,equipmentRate:0,wastePct:0,source:'',sourceDate:'',verified:false}));
+  const RATE_SOURCE='Kern County 2026 planning library — unverified, replace with a current vendor quote';
+  const RATE_ROWS=[
+    ['01 21 00','Temporary power & site facilities','LS',1250,4,0,0],
+    ['01 40 00','Engineering / design','LS',6500,0,0,0],
+    ['01 41 00','Permits, plan check & inspections','LS',5200,12,0,0],
+    ['02 20 00','Excavation & grading','CY',0,1.4,46,0],
+    ['02 30 00','Utility trench & backfill','LF',9,1.2,18,0],
+    ['03 11 00','Footings & stem wall','CY',185,1.9,35,5],
+    ['03 30 00','Slab on grade — mesh, vapor barrier, finish','SF',6.4,0.85,0.9,0],
+    ['03 35 00','Concrete curing & protection','LS',480,8,0,0],
+    ['06 11 00','Framing & structural wood','SF',13.5,0.28,0.35,8],
+    ['06 40 00','Wall & roof sheathing','SF',2.85,0.08,0,10],
+    ['07 21 00','Insulation & air barrier','SF',1.35,0.02,0,5],
+    ['07 52 00','Fireblocking & draft stopping','LF',2.1,0.05,0,0],
+    ['07 92 00','Roofing shingles & underlayment','SF',5.6,0.1,0,8],
+    ['08 11 00','Interior & exterior doors','EA',385,3.2,0,0],
+    ['08 50 00','Windows & glazed openings','EA',625,5.5,0,0],
+    ['09 22 00','Gypsum board, tape & texture','SF',3.15,0.14,0,7],
+    ['09 63 00','Flooring & base','SF',6.2,0.12,0,6],
+    ['09 91 00','Interior & exterior paint','SF',3.4,0.16,0,3],
+    ['10 21 00','Bathroom accessories & hardware','EA',240,2.4,0,0],
+    ['11 40 00','Plumbing fixtures & trim','EA',480,6,0,0],
+    ['22 40 00','Domestic water piping','LF',16.5,0.35,0,3],
+    ['22 60 00','Water heater / heat pump water heater','EA',2150,9,0,0],
+    ['23 05 00','HVAC ducting & equipment','SF',7.8,0.22,0,0],
+    ['26 05 00','Electrical service & panel','EA',1450,11,0,0],
+    ['26 20 00','Branch wiring & devices','SF',9.4,0.26,0,0],
+    ['26 30 00','Lighting & controls','SF',4.1,0.07,0,0],
+    ['28 00 00','Casework & countertops','LF',185,2.4,0,4],
+    ['31 00 00','Demolition of existing structure','SF',1.1,0.18,0.35,0],
+    ['32 50 00','Exterior siding & trim','SF',9.8,0.22,0,6],
+    ['33 11 00','Water service & utilities allowance','LS',4200,16,0,0]
+  ];
+  const buildBook=(rows,materialDelta=1)=>rows.map((r,i)=>({id:`book-${i+1}`,csi:r[0],description:r[1],unit:r[2],materialRate:Math.round(r[3]*materialDelta*100)/100,laborHours:r[4],equipmentRate:Math.round(r[5]*materialDelta*100)/100,wastePct:r[6],source:RATE_SOURCE,sourceDate:'',verified:false}));
+  const KERN_BOOK=buildBook(RATE_ROWS,1);
+  const SEED_BOOK=KERN_BOOK.map(x=>({...x}));
+  const MARKET_PRESETS={
+    kern:{label:'Kern County · Bakersfield',zone:'14',materialDelta:1.00,laborRate:55,laborBurden:0,source:RATE_SOURCE},
+    la:{label:'Los Angeles basin',zone:'09',materialDelta:1.06,laborRate:71,laborBurden:0,source:RATE_SOURCE},
+    sac:{label:'Sacramento valley',zone:'12',materialDelta:1.04,laborRate:60,laborBurden:0,source:RATE_SOURCE},
+    sd:{label:'San Diego coast',zone:'03',materialDelta:1.05,laborRate:68,laborBurden:0,source:RATE_SOURCE},
+    bay:{label:'San Jose Bay area',zone:'04',materialDelta:1.08,laborRate:82,laborBurden:0,source:RATE_SOURCE}
+  };
   const DEFAULTS={
-    project:{type:'adu-new',name:'ADU New Construction',client:'Homeowner',location:'',zip:'',preparedBy:'',startDate:'',length:24,width:24,stories:1,bedrooms:1,bathrooms:1,layout:'partitioned',finish:'standard',zone:'09',heating:'electric',ceiling:'flat',trench:25,slab:false,framing:false,utilities:false},
-    settings:{mode:'concept',marketFactor:1,marketSource:'',marketDate:'',marketVerified:false,laborRate:85,laborBurden:0,taxRate:0,contingency:10,overhead:0,profit:0,escalation:0,rateMaxAgeDays:180,pricingReviewed:false},
+    project:{type:'adu-new',name:'ADU New Construction',client:'Homeowner',location:'',zip:'',preparedBy:'',startDate:'',length:24,width:24,stories:1,bedrooms:1,bathrooms:1,layout:'partitioned',finish:'standard',zone:'14',heating:'electric',ceiling:'flat',trench:25,laundry:true,slab:false,framing:false,utilities:false},
+    settings:{mode:'concept',preset:'kern',marketFactor:1,marketSource:RATE_SOURCE,marketDate:'',marketVerified:false,laborRate:55,laborBurden:0,taxRate:0,contingency:10,overhead:0,profit:0,escalation:0,rateMaxAgeDays:180,pricingReviewed:false},
     scope:{included:'',excluded:'',allowances:'',risks:'',reviewedBy:'',reviewNote:'',reviewDate:'',rfq:[]},
     rateBook:SEED_BOOK.map(x=>({...x})),items:[],versions:[],activity:[]
   };
@@ -249,7 +293,7 @@
     state.project={
       type:TYPES[$('project-type').value]?$('project-type').value:'adu-new',name:$('project-name').value.trim()||TYPES[$('project-type').value]||'Untitled project',client:$('client-name').value.trim(),location:$('location').value.trim(),zip:$('zip').value.trim(),preparedBy:$('prepared-by').value.trim(),startDate:$('start-date').value||'',
       length:Math.round(safeNum($('length').value,24,8,250)*10)/10,width:Math.round(safeNum($('width').value,24,8,250)*10)/10,stories:Math.round(safeNum($('stories').value,1,1,4)),
-      bedrooms:Math.round(safeNum($('bedrooms').value,1,0,10)),bathrooms:Math.round(safeNum($('bathrooms').value,1,1,10)),layout:$('layout').value==='studio'?'studio':'partitioned',finish:FINISH_RATES[$('finish').value]?$('finish').value:'standard',zone:CLIMATE[$('zone').value]?$('zone').value:'09',heating:$('heating').value==='gas'?'gas':'electric',ceiling:$('ceiling').value==='vaulted'?'vaulted':'flat',trench:Math.round(safeNum($('trench').value,25,0,300)),slab:$('slab').checked,framing:$('framing').checked,utilities:$('utilities').checked
+      bedrooms:Math.round(safeNum($('bedrooms').value,1,0,10)),bathrooms:Math.round(safeNum($('bathrooms').value,1,1,10)),layout:$('layout').value==='studio'?'studio':'partitioned',finish:FINISH_RATES[$('finish').value]?$('finish').value:'standard',zone:CLIMATE[$('zone').value]?$('zone').value:'14',heating:$('heating').value==='gas'?'gas':'electric',ceiling:$('ceiling').value==='vaulted'?'vaulted':'flat',trench:Math.round(safeNum($('trench').value,25,0,300)),laundry:$('laundry').checked,slab:$('slab').checked,framing:$('framing').checked,utilities:$('utilities').checked
     };
     state.settings={
       mode:$('estimate-mode').value==='detailed'?'detailed':'concept',marketFactor:Math.round(safeNum($('market-factor').value,1,.7,1.5)*100)/100,marketSource:$('market-source').value.trim(),marketDate:$('market-date').value||'',marketVerified:$('market-verified').checked,
@@ -260,29 +304,34 @@
   function applyStateToForm(){
     const p=state.project,s=state.settings,sc=state.scope;
     $('project-type').value=p.type;$('project-name').value=p.name;$('client-name').value=p.client;$('location').value=p.location;$('zip').value=p.zip;$('prepared-by').value=p.preparedBy;$('start-date').value=p.startDate;
-    $('length').value=p.length;$('width').value=p.width;$('stories').value=p.stories||1;$('bedrooms').value=p.bedrooms;$('bathrooms').value=p.bathrooms;$('layout').value=p.layout;$('finish').value=p.finish;$('zone').value=p.zone;$('heating').value=p.heating;$('ceiling').value=p.ceiling;$('trench').value=p.trench;$('slab').checked=p.slab;$('framing').checked=p.framing;$('utilities').checked=p.utilities;
-    $('estimate-mode').value=s.mode;$('market-factor').value=s.marketFactor;$('market-source').value=s.marketSource;$('market-date').value=s.marketDate;$('market-verified').checked=s.marketVerified;$('labor-rate').value=s.laborRate;$('labor-burden').value=s.laborBurden;$('tax-rate').value=s.taxRate;$('contingency').value=s.contingency;$('overhead').value=s.overhead;$('profit').value=s.profit;$('escalation').value=s.escalation;$('rate-age').value=s.rateMaxAgeDays||180;$('pricing-reviewed').checked=s.pricingReviewed;
+    $('length').value=p.length;$('width').value=p.width;$('stories').value=p.stories||1;$('bedrooms').value=p.bedrooms;$('bathrooms').value=p.bathrooms;$('layout').value=p.layout;$('finish').value=p.finish;$('zone').value=p.zone;$('heating').value=p.heating;$('ceiling').value=p.ceiling;$('trench').value=p.trench;$('laundry').checked=!!p.laundry;$('slab').checked=p.slab;$('framing').checked=p.framing;$('utilities').checked=p.utilities;
+    $('estimate-mode').value=s.mode;$('market-preset').value=MARKET_PRESETS[s.preset]?s.preset:'kern';$('market-factor').value=s.marketFactor;$('market-source').value=s.marketSource;$('market-date').value=s.marketDate;$('market-verified').checked=s.marketVerified;$('labor-rate').value=s.laborRate;$('labor-burden').value=s.laborBurden;$('tax-rate').value=s.taxRate;$('contingency').value=s.contingency;$('overhead').value=s.overhead;$('profit').value=s.profit;$('escalation').value=s.escalation;$('rate-age').value=s.rateMaxAgeDays||180;$('pricing-reviewed').checked=s.pricingReviewed;
     $('scope-included').value=sc.included;$('scope-excluded').value=sc.excluded;$('scope-allowances').value=sc.allowances;$('scope-risks').value=sc.risks;$('reviewed-by').value=sc.reviewedBy;$('review-note').value=sc.reviewNote;
     document.querySelectorAll('[data-rfq]').forEach(x=>x.checked=(sc.rfq||[]).includes(x.dataset.rfq));
   }
 
   function calcConcept(){
-    const p=state.project,s=state.settings,area=p.length*p.width*(p.stories||1),perim=2*(p.length+p.width),cl=CLIMATE[p.zone]||CLIMATE['09'],partitioned=p.layout==='partitioned',factor=s.marketFactor,labMult=(s.laborRate/85)*(1+s.laborBurden/100)*factor;
+    const p=state.project,s=state.settings,footprint=p.length*p.width,area=footprint*(p.stories||1),perim=2*(p.length+p.width),cl=CLIMATE[p.zone]||CLIMATE['14'],partitioned=p.layout==='partitioned',factor=s.marketFactor,labMult=(s.laborRate/85)*(1+s.laborBurden/100);
     const finishRate=FINISH_RATES[p.finish]||125;
+    const slabCY=((footprint*(4/12)/27)+(perim*.25*.5/27))*1.10;
     const bases=[
-      {csi:'02 30 00',scope:'Civil work & utility trench',basis:'Base site allowance + entered trench length',key:'civil',base:Math.round(800+p.trench*6.5+area*2.1)},
-      {csi:'06 11 00',scope:'Framing & structural wood',basis:'Area, partition layout, bedrooms and bathrooms',key:'framing',base:Math.round(area*(partitioned?7.2:5)+(partitioned?p.bedrooms*950:0)+p.bathrooms*1200)},
-      {csi:'07 21 00',scope:'Insulation & moisture barrier',basis:`${cl.label} allowance + area factor`,key:'insulation',base:Math.round(area*cl.insulation+area*1.3)},
-      {csi:'23 00 00',scope:'HVAC / mechanical',basis:'Climate-zone rate + ceiling configuration',key:'mep',base:Math.round(area*cl.hvac*(p.ceiling==='vaulted'?1.15:1.10))},
-      {csi:'26 00 00',scope:'Electrical',basis:'Area + layout / bathroom allowance',key:'mep',base:Math.round(area*4.2+(partitioned?p.bathrooms*650:400))},
-      {csi:'22 00 00',scope:'Plumbing & water heating',basis:'Bathroom count + kitchen / heater allowance',key:'mep',base:Math.round(p.bathrooms*3200+1800+(p.heating==='gas'?1300:1900))},
-      {csi:'08–09',scope:'Openings, drywall & finishes',basis:`${FINISH_LABELS[p.finish]} finish reference · ${money(finishRate)}/SF × 32%`,key:'finishes',base:Math.round(area*finishRate*.32)},
-      {csi:'01 41 00',scope:'Permits & fees',basis:'Generic planning allowance; jurisdiction fees vary',key:'permits',base:Math.round(2800+area*3.5)},
-      {csi:'01 40 00',scope:'Engineering & design',basis:'Concept design / engineering allowance',key:'engineering',base:Math.round(2500+area*1.5)}
+      {csi:'02 20 00',scope:'Site work, grading & utility trench',basis:'Site allowance + entered trench length + gross area',key:'site',base:Math.round(2500+p.trench*26+area*3.2)},
+      {csi:'03 11 00',scope:'Foundation, footings & slab',basis:p.slab?'Existing foundation credited — verification allowance only':'4-in slab + nominal perimeter stem wall, 10% factor',key:'foundation',base:p.slab?900:Math.round(slabCY*400)},
+      {csi:'06 11 00',scope:'Framing, sheathing & structural wood',basis:'Area, partition layout, bedrooms and bathrooms',key:'framing',base:Math.round(area*(partitioned?19:13)+(partitioned?p.bedrooms*2100:0)+p.bathrooms*2400)},
+      {csi:'07 21 00',scope:'Insulation, air & moisture barrier',basis:`${cl.label} allowance + area factor`,key:'insulation',base:Math.round(area*(cl.insulation+1))},
+      {csi:'07 92 00',scope:'Roofing, underlayment & flashing',basis:'Area-based roof plane allowance; pitch, overhang and penetrations not modelled',key:'roofing',base:Math.round(area*6.8)},
+      {csi:'23 00 00',scope:'HVAC / mechanical',basis:'Climate-zone rate × ceiling configuration',key:'hvac',base:Math.round(area*cl.hvac*(p.ceiling==='vaulted'?1.15:1.10))},
+      {csi:'26 00 00',scope:'Electrical',basis:'Area branch wiring + devices + bathroom and service allowance',key:'electrical',base:Math.round(area*8.4+p.bathrooms*700)},
+      {csi:'22 00 00',scope:'Plumbing, water heating & laundry',basis:`Bathrooms, bedrooms, laundry hookup and ${p.heating==='gas'?'gas':'heat pump'} water heating`,key:'plumbing',base:Math.round(area*2.1+p.bathrooms*3900+p.bedrooms*520+(p.laundry?2300:0)+(p.heating==='gas'?1300:1900)+2600)},
+      {csi:'09 00 00',scope:'Interior finishes, drywall & flooring',basis:`${FINISH_LABELS[p.finish]} finish reference · ${money(finishRate)}/SF × 30%`,key:'interior',base:Math.round(area*finishRate*.30)},
+      {csi:'08 50 00',scope:'Openings, doors, windows & exterior finish',basis:'Area-based doors, windows, siding and exterior paint allowance',key:'exterior',base:Math.round(area*9.2)},
+      {csi:'01 41 00',scope:'Permits, plan check & inspections',basis:'Generic planning allowance; jurisdiction fees vary',key:'permits',noIndex:true,base:Math.round(3200+area*4.6)},
+      {csi:'01 40 00',scope:'Engineering & design',basis:'Concept design / engineering allowance',key:'engineering',noIndex:true,base:Math.round(3500+area*3.2)}
     ];
-    const divisions=bases.map(r=>{const z=SPLITS[r.key],material=Math.round(r.base*z.mat*factor),labor=Math.round(r.base*z.lab*(s.laborRate/85)*(1+s.laborBurden/100)*factor);return{...r,material,labor,equipment:0,total:material+labor}});
+    const divisions=bases.map(r=>{const z=SPLITS[r.key],material=Math.round(r.base*z.mat*(r.noIndex?1:factor)),labor=Math.round(r.base*z.lab*labMult);return{...r,material,labor,equipment:0,total:material+labor}});
     const materialTotal=divisions.reduce((a,r)=>a+r.material,0),laborTotal=divisions.reduce((a,r)=>a+r.labor,0),positiveDirect=materialTotal+laborTotal;
-    const credits={slab:p.slab?Math.round(area*14*factor):0,framing:p.framing?Math.round(area*18*factor):0,utilities:p.utilities?Math.round(area*10*factor):0};credits.total=credits.slab+credits.framing+credits.utilities;
+    const baseOf=key=>{const r=bases.find(x=>x.key===key);return r?r.base:0};
+    const credits={slab:p.slab?Math.round(baseOf('foundation')*.9):0,framing:p.framing?Math.round(baseOf('framing')*.55):0,utilities:p.utilities?Math.round(baseOf('plumbing')*.25):0};credits.total=credits.slab+credits.framing+credits.utilities;
     const creditApplied=Math.min(credits.total,positiveDirect);
     return finishCalculation({mode:'concept',area,divisions,materialTotal,laborTotal,equipmentTotal:0,positiveDirect,credits,creditApplied,alternativeTotal:0,climate:cl,perimeter:perim,finishRate});
   }
@@ -301,7 +350,7 @@
     const p=state.project,s=state.settings;
     const qty=Math.max(0,Number(item.qty)||0),waste=clamp(Number(item.wastePct)||0,0,200)/100,factor=s.marketFactor;
     const material=qty*Math.max(0,Number(item.materialRate)||0)*(1+waste)*factor;
-    const labor=qty*Math.max(0,Number(item.laborHours)||0)*s.laborRate*(1+s.laborBurden/100)*factor;
+    const labor=qty*Math.max(0,Number(item.laborHours)||0)*s.laborRate*(1+s.laborBurden/100);
     const equipment=qty*Math.max(0,Number(item.equipmentRate)||0)*factor;
     const sign=item.kind==='credit'?-1:1;
     return{material:material*sign,labor:labor*sign,equipment:equipment*sign,total:(material+labor+equipment)*sign,positiveTotal:material+labor+equipment};
@@ -324,7 +373,7 @@
     }
     const divisions=[...groups.values()].filter(x=>x.total!==0||x.material||x.labor||x.equipment).sort((a,b)=>a.csi.localeCompare(b.csi));
     const credits={total:creditApplied,slab:0,framing:0,utilities:0};
-    const out=finishCalculation({mode:'detailed',area,divisions,materialTotal,laborTotal,equipmentTotal,positiveDirect,credits,creditApplied,alternativeTotal,climate:CLIMATE[state.project.zone]||CLIMATE['09'],perimeter:2*(state.project.length+state.project.width),finishRate:FINISH_RATES[state.project.finish]||125,taxBase:Math.max(0,taxBase)});
+    const out=finishCalculation({mode:'detailed',area,divisions,materialTotal,laborTotal,equipmentTotal,positiveDirect,credits,creditApplied,alternativeTotal,climate:CLIMATE[state.project.zone]||CLIMATE['14'],perimeter:2*(state.project.length+state.project.width),finishRate:FINISH_RATES[state.project.finish]||125,taxBase:Math.max(0,taxBase)});
     out.netDirect=positiveDirect-creditApplied;
     out.tax=Math.round(Math.max(0,taxBase)*state.settings.taxRate/100);
     out.contingency=Math.round(positiveDirect*state.settings.contingency/100);
@@ -420,12 +469,18 @@
       <td><button class="btn small danger" type="button" data-delete-book="${esc(r.id)}" aria-label="Remove cost book row">×</button></td>
     </tr>`).join('');
     const filled=state.rateBook.filter(r=>Number(r.materialRate)>0||Number(r.laborHours)>0||Number(r.equipmentRate)>0).length;const verified=state.rateBook.filter(r=>r.verified&&r.source&&r.sourceDate).length;
+    const undated=state.rateBook.filter(r=>!r.sourceDate).length,stale=state.rateBook.filter(r=>r.sourceDate&&ageDays(r.sourceDate)>state.settings.rateMaxAgeDays).length;
     $('book-stats').innerHTML=`<div class="mini-card"><span>Cost-book entries</span><strong>${state.rateBook.length}</strong><small>Local to this project file</small></div><div class="mini-card"><span>Priced entries</span><strong>${filled}</strong><small>At least one non-zero rate or production input</small></div><div class="mini-card"><span>Verified with source + date</span><strong>${verified}</strong><small>User attestation; not independently validated</small></div>`;
+    let ageTitle,ageNote,ageBadge,ageKlass;
+    if(stale){ageTitle=`${stale} rate${stale===1?'':'s'} older than the ${state.settings.rateMaxAgeDays}-day target`;ageNote='Stale rates were carried over from an earlier quote. Re-date or re-bid these rows before issuing.';ageBadge='Stale';ageKlass='critical'}
+    else if(undated){ageTitle=`${undated} of ${state.rateBook.length} rate${undated===1?'':'s'} have no as-of date`;ageNote='Undated rates cannot be freshness-checked. Enter the source date for every production rate you rely on.';ageBadge='Undated';ageKlass=''}
+    else{ageTitle='Every rate is dated within the refresh target';ageNote='All rate as-of dates are current against the configured refresh window.';ageBadge='Current';ageKlass='good'}
+    $('book-age-title').textContent=ageTitle;$('book-age-note').textContent=ageNote;$('book-age-badge').textContent=ageBadge;$('book-age-card').className=`readiness ${ageKlass}`;
     renderItemSelect();
   }
   function makeBlankItem(o={}){return{id:o.id||uid(),csi:o.csi||'01 00 00',csiDescription:o.csiDescription||'',description:o.description||'New estimate item',kind:o.kind||'cost',qty:o.qty??1,unit:o.unit||'LS',materialRate:o.materialRate??0,laborHours:o.laborHours??0,equipmentRate:o.equipmentRate??0,wastePct:o.wastePct??0,source:o.source||'',sourceDate:o.sourceDate||'',verified:Boolean(o.verified),classification:o.classification||'base',notes:o.notes||'',rateBookId:o.rateBookId||''}}
 
-  function ageDays(date){if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date||''))return Infinity;const d=new Date(`${date}T12:00:00`);if(Number.isNaN(d.getTime()))return Infinity;const days=Math.floor((Date.now()-d.getTime())/86400000);return days<0?Infinity:days}
+  function ageDays(date){if(!/^\d{4}-\d{2}-\d{2}$/.test(date||''))return Infinity;const d=new Date(`${date}T12:00:00`);if(Number.isNaN(d.getTime()))return Infinity;const days=Math.floor((Date.now()-d.getTime())/86400000);return days<0?Infinity:days}
   function getQaChecks(est){
     const p=state.project,s=state.settings,baseItems=state.items.filter(i=>i.classification==='base'&&i.kind==='cost');
     const checks=[];
@@ -479,7 +534,7 @@
       ['Roof sheathing · 4×8 sheets',`${fmt(roofSheets,0)} sheets`,'Plan footprint plus 10% waste; pitch / overhang / openings not modeled.'],
       ['Roof framing / truss lines',`${fmt(trusses,0)} lines`,'Approx. 24-in spacing along length; engineered layout required.'],
       ['Utility trench',p.trench?`${fmt(p.trench,0)} LF`:'No trench allowance','Concept civil rate uses a fixed placeholder per LF; verify depth, type and restoration.'],
-      ['Insulation / envelope target',`${fmt(wallSF,0)} SF gross wall basis`,`${CLIMATE[p.zone].wall}; ceiling ${CLIMATE[p.zone].ceiling}. Not an energy-code determination.`]
+      ['Insulation / envelope target',`${fmt(wallSF,0)} SF gross wall basis`,`${(CLIMATE[p.zone]||CLIMATE['14']).wall}; ceiling ${(CLIMATE[p.zone]||CLIMATE['14']).ceiling}. Not an energy-code determination.`]
     ];
     $('takeoff-rows').innerHTML=takeoffs.map(r=>`<tr><td>${esc(r[0])}</td><td class="num"><strong>${esc(r[1])}</strong></td><td>${esc(r[2])}</td></tr>`).join('');
     const outlets=Math.max(3,Math.ceil(area/80)),lights=Math.max(1,Math.ceil(area/400)),activeBeds=partitioned?p.bedrooms:0,alarms=Math.max(2,1+activeBeds+p.bathrooms);
@@ -531,9 +586,9 @@
     const divisionLines=(est.divisions||[]).map(x=>`${String(x.csi||'').padEnd(10)} ${String(x.scope||'').padEnd(36)} ${money(x.total||0).padStart(13)}`);
     const selected=(scope.rfq||[]).length?scope.rfq.map(x=>`[ ] ${x}`):['No RFQ scope items selected.'];
     const lines=[
-      'SOVR BUILD OS v5.0 — PRELIMINARY ESTIMATE / RFQ WORKSHEET','='.repeat(72),'',
+      'SOVR BUILD OS v6.0 — PRELIMINARY ESTIMATE / RFQ WORKSHEET','='.repeat(72),'',
       `PROJECT:      ${currentName()}`,`PROJECT TYPE: ${TYPES[p.type]||'Not specified'}`,`CLIENT:       ${p.client||'Not specified'}`, `SITE:         ${[p.location,p.zip].filter(Boolean).join(' · ')||'Not specified'}`,`DATE:         ${new Intl.DateTimeFormat('en-US',{year:'numeric',month:'long',day:'numeric'}).format(now)}`,`METHOD:       ${method}`,`PREPARED BY:  ${p.preparedBy||'Not specified'}`,'',
-      'PROJECT BASIS','-------------',`Dimensions: ${fmt(p.length,p.length%1?1:0)} ft × ${fmt(p.width,p.width%1?1:0)} ft · ${p.stories||1} storey/stories`, `Area: ${fmt(p.length*p.width*(p.stories||1),Number.isInteger(p.length*p.width*(p.stories||1))?0:1)} SF gross`,  `Program: ${p.layout==='studio'?'Open studio':`${p.bedrooms} BR · ${p.bathrooms} BA`}`,`Finish reference: ${FINISH_LABELS[p.finish]} · ${money(FINISH_RATES[p.finish])}/SF`, `Climate placeholder: ${CLIMATE[p.zone].label}`, `Market adjustment: ${s.marketFactor.toFixed(2)} · ${s.marketSource||'source not supplied'}${s.marketDate?` · as of ${s.marketDate}`:''}`, `Base labor rate: ${money(s.laborRate)}/hr · burden ${fmt(s.laborBurden,1)}%`, '',
+      'PROJECT BASIS','-------------',`Dimensions: ${fmt(p.length,p.length%1?1:0)} ft × ${fmt(p.width,p.width%1?1:0)} ft · ${p.stories||1} storey/stories`, `Area: ${fmt(p.length*p.width*(p.stories||1),Number.isInteger(p.length*p.width*(p.stories||1))?0:1)} SF gross`,  `Program: ${p.layout==='studio'?'Open studio':`${p.bedrooms} BR · ${p.bathrooms} BA`}`,`Finish reference: ${FINISH_LABELS[p.finish]} · ${money(FINISH_RATES[p.finish])}/SF`, `Climate placeholder: ${CLIMATE[p.zone].label}`, `Material market index: ${s.marketFactor.toFixed(2)} · ${s.marketSource||'source not supplied'}${s.marketDate?` · as of ${s.marketDate}`:''}`, `Base labor rate: ${money(s.laborRate)}/hr · burden ${fmt(s.laborBurden,1)}%`, '',
       'BASE COST BY DIVISION','---------------------','CSI        DIVISION                                      BASE TOTAL',...divisionLines,'',
       'COMMERCIAL SUMMARY','-------------------',`Positive direct cost: ${money(est.positiveDirect)}`,`Credits:             − ${money(est.creditApplied)}`,`Net direct:          ${money(est.netDirect)}`,`Material/equipment tax: + ${money(est.tax)}`,`Contingency (${fmt(s.contingency,1)}%):      + ${money(est.contingency)}`,`Overhead (${fmt(s.overhead,1)}%):          + ${money(est.overhead)}`,`Profit (${fmt(s.profit,1)}%):            + ${money(est.profit)}`,`Escalation (${fmt(s.escalation,1)}%):       + ${money(est.escalation)}`,`PLANNING TOTAL:      ${money(est.grandTotal)}`,`Planning total / SF: ${money2(est.costPerSF)}/SF`, `Alternates outside base: ${money(est.alternativeTotal||0)}`,...(state.items.filter(x=>x.classification==='alternate').length?state.items.filter(x=>x.classification==='alternate').map(x=>`ALT: ${x.description} · ${money(itemAmounts(x).total)}`):['No alternate line items.']),`Owner-supplied items: ${(est.ownerSuppliedItems||[]).length?(est.ownerSuppliedItems||[]).map(x=>x.description).join('; '):'None listed'}`,`Excluded estimate rows: ${state.items.filter(x=>x.classification==='excluded').length}`,'',
       'INCLUSIONS','-----------',...(scope.included.trim()?scope.included.split(/\r?\n/).filter(Boolean).map(x=>`• ${x}`):['Not documented.']), '',
@@ -561,11 +616,18 @@
   function renderRfq(){ $('rfq-checks').innerHTML=SCOPE_OPTIONS.map(x=>`<label class="scope-check"><input type="checkbox" data-rfq="${esc(x)}" ${(state.scope.rfq||[]).includes(x)?'checked':''}><span>${esc(x)}</span></label>`).join(''); }
 
   function csvEscape(v){const s=String(v??'');return`"${s.replace(/"/g,'""')}"`}
-  function exportProject(){syncProjectFromForm();const est=activeEstimate();const payload={application:'SOVR Build OS Estimating Workbench',version:'5.0',schemaVersion:2,exportedAt:new Date().toISOString(),state,calculatedSummary:{mode:state.settings.mode,total:est.grandTotal,area:est.area,costPerSF:est.costPerSF}};download(`${fileSlug(currentName())}_SOVR_Project.json`,JSON.stringify(payload,null,2),'application/json;charset=utf-8');flash('Portable project JSON downloaded.')}
-  function exportEstimateCsv(){syncProjectFromForm();const est=activeEstimate();const rows=[['SOVR Build OS v5.0 — Estimate export'],['Project',currentName()],['Client',state.project.client],['Site',[state.project.location,state.project.zip].filter(Boolean).join(' ')],['Method',state.settings.mode],['Area SF',est.area],[],['CSI','Division','Material','Labor','Equipment','Base total'],...(est.divisions||[]).map(r=>[r.csi,r.scope,r.material,r.labor,r.equipment,r.total]),[],['Positive direct cost',est.positiveDirect],['Credits',-est.creditApplied],['Tax',est.tax],['Contingency',est.contingency],['Overhead',est.overhead],['Profit',est.profit],['Escalation',est.escalation],['Estimated total',est.grandTotal],['Cost / SF',est.costPerSF]];
+  function exportProject(){syncProjectFromForm();const est=activeEstimate();const payload={application:'SOVR Build OS Estimating Workbench',version:'6.0',schemaVersion:2,exportedAt:new Date().toISOString(),state,calculatedSummary:{mode:state.settings.mode,total:est.grandTotal,area:est.area,costPerSF:est.costPerSF}};download(`${fileSlug(currentName())}_SOVR_Project.json`,JSON.stringify(payload,null,2),'application/json;charset=utf-8');flash('Portable project JSON downloaded.')}
+  function exportEstimateCsv(){syncProjectFromForm();const est=activeEstimate();const rows=[['SOVR Build OS v6.0 — Estimate export'],['Project',currentName()],['Client',state.project.client],['Site',[state.project.location,state.project.zip].filter(Boolean).join(' ')],['Method',state.settings.mode],['Area SF',est.area],[],['CSI','Division','Material','Labor','Equipment','Base total'],...(est.divisions||[]).map(r=>[r.csi,r.scope,r.material,r.labor,r.equipment,r.total]),[],['Positive direct cost',est.positiveDirect],['Credits',-est.creditApplied],['Tax',est.tax],['Contingency',est.contingency],['Overhead',est.overhead],['Profit',est.profit],['Escalation',est.escalation],['Estimated total',est.grandTotal],['Cost / SF',est.costPerSF]];
     if(state.settings.mode==='detailed'){rows.push([],['CSI','Description','Type','Qty','Unit','Material/unit','Labor hrs/unit','Equipment/unit','Waste %','Source','As of','Verified','Class','Extended']);for(const i of state.items){rows.push([i.csi,i.description,i.kind,i.qty,i.unit,i.materialRate,i.laborHours,i.equipmentRate,i.wastePct,i.source,i.sourceDate,i.verified,i.classification,itemAmounts(i).total])}}
     download(`${fileSlug(currentName())}_Estimate.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');flash('Estimate CSV downloaded.')}
   function exportRateBook(){const rows=[['csi','description','unit','materialRate','laborHours','equipmentRate','wastePct','source','sourceDate','verified'],...state.rateBook.map(r=>[r.csi,r.description,r.unit,r.materialRate,r.laborHours,r.equipmentRate,r.wastePct,r.source,r.sourceDate,r.verified])];download(`${fileSlug(currentName())}_Rate_Book.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');flash('Cost-book CSV downloaded.')}
+  function exportTakeoffCsv(){
+    const t=n=>String(n==null?'':n).replace(/\s+/g,' ').trim();
+    const cells=sel=>[...document.querySelectorAll(sel)].map(r=>[...r.children].map(c=>t(c.innerText)));
+    const rooms=[...document.querySelectorAll('#room-grid .room-card')].map(c=>{const k=c.querySelectorAll('h5,strong,small');return [t(k[0]&&k[0].innerText),t(k[1]&&k[1].innerText),t(k[2]&&k[2].innerText)]});
+    const rows=[['SOVR Build OS v6.0 — Takeoffs & coordination schedules'],['Project',currentName()],['Project type',TYPES[state.project.type]||'Not specified'],['Client',state.project.client],['Site',[state.project.location,state.project.zip].filter(Boolean).join(' ')],['Method',state.settings.mode],['Gross area SF',areaNow()],['Generated',new Date().toISOString()],[],['STRUCTURAL / ENVELOPE'],['Component','Planning quantity','Basis / verification'],...cells('#takeoff-rows tr'),[],['ELECTRICAL COORDINATION'],['System / scope','Qty.','Protection / rating','Conductor / design','Planning note'],...cells('#electrical-rows tr'),[],['OPENINGS'],['Mark','Type / location','Qty.','Nominal size','Review item'],...cells('#openings-rows tr'),[],['ROOM AREA ALLOCATION'],['Space','Area SF','Share of gross'],...rooms,[],['WARNING','Conceptual planning quantities derived from entered dimensions only. Not a measured takeoff. Verify slab and footing quantities, framing, roof design, electrical service and circuits, egress, safety glazing, insulation values, clearances, accessibility and code compliance against actual plans and the applicable jurisdiction.']];
+    download(`${fileSlug(currentName())}_Takeoffs.csv`,'\uFEFF'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n'),'text/csv;charset=utf-8');flash('Takeoffs and coordination schedules exported.');
+  }
   function downloadProposal(){syncProjectFromForm();download(`${fileSlug(currentName())}_Proposal_RFQ.txt`,proposalText(activeEstimate()),'text/plain;charset=utf-8');flash('Proposal / RFQ worksheet downloaded.')}
   async function copyText(text,msg){try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(text);else{const t=document.createElement('textarea');t.value=text;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();if(!document.execCommand('copy'))throw Error('copy unavailable');t.remove()}flash(msg)}catch(e){flash('Copy was blocked by the browser. Use the download action instead.') }}
   function saveSnapshot(){syncProjectFromForm();const est=activeEstimate(),label=$('revision-label').value.trim()||`Revision ${state.versions.length+1}`;const payload={project:clone(state.project),settings:clone(state.settings),scope:clone(state.scope),rateBook:clone(state.rateBook),items:clone(state.items)};state.versions.unshift({id:uid(),savedAt:new Date().toISOString(),label,mode:state.settings.mode,projectName:currentName(),total:est.grandTotal,payload});state.versions=state.versions.slice(0,20);logActivity(`Saved revision snapshot: ${label}`);$('revision-label').value='';renderDynamic();saveDraft();flash('Revision snapshot saved in this browser.')}
@@ -573,17 +635,17 @@
 
   function normalizeBook(book){if(!Array.isArray(book))return clone(SEED_BOOK);return book.slice(0,500).map((r,i)=>({id:String(r.id||uid()),csi:String(r.csi||'01 00 00').slice(0,30),description:String(r.description||'New rate').slice(0,120),unit:String(r.unit||'EA').slice(0,18),materialRate:Math.max(0,Number(r.materialRate)||0),laborHours:Math.max(0,Number(r.laborHours)||0),equipmentRate:Math.max(0,Number(r.equipmentRate)||0),wastePct:clamp(Number(r.wastePct)||0,0,200),source:String(r.source||'').slice(0,160),sourceDate:/^\d{4}-\d{2}-\d{2}$/.test(r.sourceDate||'')?r.sourceDate:'',verified:Boolean(r.verified)}))}
   function validateState(raw){const src=raw?.state&&typeof raw.state==='object'?raw.state:raw||{};const base=clone(DEFAULTS);const p=src.project||{};const s=src.settings||{};const sc=src.scope||{};
-    base.project={...base.project,...p};base.project.type=TYPES[base.project.type]?base.project.type:'adu-new';base.project.name=String(base.project.name||TYPES[base.project.type]).slice(0,90);base.project.client=String(base.project.client||'').slice(0,90);base.project.location=String(base.project.location||'').slice(0,100);base.project.zip=String(base.project.zip||'').slice(0,10);base.project.preparedBy=String(base.project.preparedBy||'').slice(0,60);base.project.startDate=/^\d{4}-\d{2}-\d{2}$/.test(base.project.startDate||'')?base.project.startDate:'';base.project.length=clamp(Number(base.project.length)||24,8,250);base.project.width=clamp(Number(base.project.width)||24,8,250);base.project.stories=Math.round(clamp(Number(base.project.stories)||1,1,4));base.project.bedrooms=Math.round(clamp(Number(base.project.bedrooms)||0,0,10));base.project.bathrooms=Math.round(clamp(Number(base.project.bathrooms)||1,1,10));base.project.layout=base.project.layout==='studio'?'studio':'partitioned';base.project.finish=FINISH_RATES[base.project.finish]?base.project.finish:'standard';base.project.zone=CLIMATE[base.project.zone]?base.project.zone:'09';base.project.heating=base.project.heating==='gas'?'gas':'electric';base.project.ceiling=base.project.ceiling==='vaulted'?'vaulted':'flat';base.project.trench=clamp(Number(base.project.trench)||0,0,300);['slab','framing','utilities'].forEach(k=>base.project[k]=Boolean(base.project[k]));
-    base.settings={...base.settings,...s};base.settings.mode=base.settings.mode==='detailed'?'detailed':'concept';base.settings.marketFactor=clamp(Number(base.settings.marketFactor)||1,.7,1.5);base.settings.laborRate=clamp(Number(base.settings.laborRate)||85,20,250);base.settings.laborBurden=clamp(Number(base.settings.laborBurden)||0,0,100);base.settings.taxRate=clamp(Number(base.settings.taxRate)||0,0,20);base.settings.contingency=clamp(Number(base.settings.contingency)||0,0,50);base.settings.overhead=clamp(Number(base.settings.overhead)||0,0,40);base.settings.profit=clamp(Number(base.settings.profit)||0,0,40);base.settings.escalation=clamp(Number(base.settings.escalation)||0,0,40);base.settings.rateMaxAgeDays=[30,60,90,180,365].includes(Number(base.settings.rateMaxAgeDays))?Number(base.settings.rateMaxAgeDays):180;base.settings.marketSource=String(base.settings.marketSource||'').slice(0,120);base.settings.marketDate=/^\d{4}-\d{2}-\d{2}$/.test(base.settings.marketDate||'')?base.settings.marketDate:'';base.settings.marketVerified=Boolean(base.settings.marketVerified);base.settings.pricingReviewed=Boolean(base.settings.pricingReviewed);
+    base.project={...base.project,...p};base.project.type=TYPES[base.project.type]?base.project.type:'adu-new';base.project.name=String(base.project.name||TYPES[base.project.type]).slice(0,90);base.project.client=String(base.project.client||'').slice(0,90);base.project.location=String(base.project.location||'').slice(0,100);base.project.zip=String(base.project.zip||'').slice(0,10);base.project.preparedBy=String(base.project.preparedBy||'').slice(0,60);base.project.startDate=/^\d{4}-\d{2}-\d{2}$/.test(base.project.startDate||'')?base.project.startDate:'';base.project.length=clamp(Number(base.project.length)||24,8,250);base.project.width=clamp(Number(base.project.width)||24,8,250);base.project.stories=Math.round(clamp(Number(base.project.stories)||1,1,4));base.project.bedrooms=Math.round(clamp(Number(base.project.bedrooms)||0,0,10));base.project.bathrooms=Math.round(clamp(Number(base.project.bathrooms)||1,1,10));base.project.layout=base.project.layout==='studio'?'studio':'partitioned';base.project.finish=FINISH_RATES[base.project.finish]?base.project.finish:'standard';base.project.zone=CLIMATE[base.project.zone]?base.project.zone:'14';base.project.heating=base.project.heating==='gas'?'gas':'electric';base.project.ceiling=base.project.ceiling==='vaulted'?'vaulted':'flat';base.project.trench=clamp(Number(base.project.trench)||0,0,300);['slab','framing','utilities','laundry'].forEach(k=>base.project[k]=Boolean(base.project[k]));
+    base.settings={...base.settings,...s};base.settings.mode=base.settings.mode==='detailed'?'detailed':'concept';base.settings.preset=MARKET_PRESETS[base.settings.preset]?base.settings.preset:'kern';base.settings.marketFactor=clamp(Number(base.settings.marketFactor)||1,.7,1.5);base.settings.laborRate=clamp(Number(base.settings.laborRate)||85,20,250);base.settings.laborBurden=clamp(Number(base.settings.laborBurden)||0,0,100);base.settings.taxRate=clamp(Number(base.settings.taxRate)||0,0,20);base.settings.contingency=clamp(Number(base.settings.contingency)||0,0,50);base.settings.overhead=clamp(Number(base.settings.overhead)||0,0,40);base.settings.profit=clamp(Number(base.settings.profit)||0,0,40);base.settings.escalation=clamp(Number(base.settings.escalation)||0,0,40);base.settings.rateMaxAgeDays=[30,60,90,180,365].includes(Number(base.settings.rateMaxAgeDays))?Number(base.settings.rateMaxAgeDays):180;base.settings.marketSource=String(base.settings.marketSource||'').slice(0,120);base.settings.marketDate=/^\d{4}-\d{2}-\d{2}$/.test(base.settings.marketDate||'')?base.settings.marketDate:'';base.settings.marketVerified=Boolean(base.settings.marketVerified);base.settings.pricingReviewed=Boolean(base.settings.pricingReviewed);
     base.scope={...base.scope,...sc};for(const k of ['included','excluded','allowances','risks','reviewedBy','reviewNote'])base.scope[k]=String(base.scope[k]||'').slice(0,k==='reviewNote'?160:6000);base.scope.reviewDate=/^\d{4}-\d{2}-\d{2}$/.test(base.scope.reviewDate||'')?base.scope.reviewDate:'';base.scope.rfq=Array.isArray(base.scope.rfq)?base.scope.rfq.filter(x=>SCOPE_OPTIONS.includes(x)):[];
     base.rateBook=normalizeBook(src.rateBook);base.items=Array.isArray(src.items)?src.items.slice(0,1500).map(i=>makeBlankItem({...i,id:String(i.id||uid()),qty:Math.max(0,Number(i.qty)||0),materialRate:Math.max(0,Number(i.materialRate)||0),laborHours:Math.max(0,Number(i.laborHours)||0),equipmentRate:Math.max(0,Number(i.equipmentRate)||0),wastePct:clamp(Number(i.wastePct)||0,0,200),classification:['base','alternate','owner','excluded'].includes(i.classification)?i.classification:'base',kind:i.kind==='credit'?'credit':'cost',verified:Boolean(i.verified)})):[];
     base.versions=Array.isArray(src.versions)?src.versions.slice(0,20).filter(v=>v&&v.payload&&typeof v.payload==='object').map(v=>({id:String(v.id||uid()),savedAt:v.savedAt||new Date().toISOString(),label:String(v.label||'Revision').slice(0,90),mode:v.mode==='detailed'?'detailed':'concept',projectName:String(v.projectName||'Project').slice(0,90),total:Number(v.total)||0,payload:v.payload})):[];base.activity=Array.isArray(src.activity)?src.activity.slice(0,40).filter(a=>a&&a.message).map(a=>({time:a.time||new Date().toISOString(),message:String(a.message).slice(0,150)})):[];return base}
-  function tryLegacy(){try{const raw=localStorage.getItem(LEGACY_KEY);if(!raw)return null;const old=JSON.parse(raw).state||{};const x=clone(DEFAULTS);x.project.type=old.projectType||x.project.type;x.project.name=TYPES[x.project.type]||x.project.name;x.project.client=old.client||x.project.client;x.project.location=old.location||'';x.project.length=old.length||24;x.project.width=old.width||24;x.project.bedrooms=old.bedrooms??1;x.project.bathrooms=old.bathrooms||1;x.project.layout=old.layout||'partitioned';x.project.finish=old.finish||'standard';x.project.zone=old.zone||'09';x.project.heating=old.heating||'electric';x.project.ceiling=old.ceiling||'flat';x.project.slab=!!old.slab;x.project.framing=!!old.framing;x.project.utilities=!!old.utilities;x.project.trench=old.trench??25;x.settings.laborRate=old.laborRate||85;x.settings.contingency=old.contingency??10;return x}catch(e){return null}}
+  function tryLegacy(key){try{const raw=localStorage.getItem(key);if(!raw)return null;const old=JSON.parse(raw).state||{};const x=clone(DEFAULTS);x.project.type=old.projectType||x.project.type;x.project.name=TYPES[x.project.type]||x.project.name;x.project.client=old.client||x.project.client;x.project.location=old.location||'';x.project.length=old.length||24;x.project.width=old.width||24;x.project.bedrooms=old.bedrooms??1;x.project.bathrooms=old.bathrooms||1;x.project.layout=old.layout||'partitioned';x.project.finish=old.finish||'standard';x.project.zone=old.zone||'09';x.project.heating=old.heating||'electric';x.project.ceiling=old.ceiling||'flat';x.project.slab=!!old.slab;x.project.framing=!!old.framing;x.project.utilities=!!old.utilities;x.project.trench=old.trench??25;x.settings.laborRate=old.laborRate||85;x.settings.contingency=old.contingency??10;return x}catch(e){return null}}
 
   function toBookItem(row){return{csi:row.csi,csiDescription:row.description,description:row.description,kind:'cost',qty:1,unit:row.unit,materialRate:row.materialRate,laborHours:row.laborHours,equipmentRate:row.equipmentRate,wastePct:row.wastePct,source:row.source,sourceDate:row.sourceDate,verified:row.verified,classification:'base',rateBookId:row.id,notes:'Rate copied from local cost book at '+(row.sourceDate||'undated')+'.'}}
-  function seedConceptItems(){const c=calcConcept();const factor=state.settings.marketFactor;const labLoaded=state.settings.laborRate*(1+state.settings.laborBurden/100)*factor;const fresh=[];
+  function seedConceptItems(){const c=calcConcept();const factor=state.settings.marketFactor;const labLoaded=state.settings.laborRate*(1+state.settings.laborBurden/100);const fresh=[];
     c.divisions.forEach(r=>fresh.push(makeBlankItem({csi:r.csi,csiDescription:r.scope,description:`${r.scope} — transferred concept allowance`,kind:'cost',qty:1,unit:'LS',materialRate:r.material/factor,laborHours:labLoaded>0?r.labor/labLoaded:0,equipmentRate:0,wastePct:0,source:'Concept model transfer — replace with current quote / measured takeoff',sourceDate:'',verified:false,classification:'base',notes:`Snapshot from concept model on ${todayIso()}; not an external quote.`})));
-    if(c.creditApplied)fresh.push(makeBlankItem({csi:'01 00 00',csiDescription:'Existing-condition credits',description:'Existing-condition credits — concept allowance transfer',kind:'credit',qty:1,unit:'LS',materialRate:c.creditApplied/factor,laborHours:0,equipmentRate:0,wastePct:0,source:'Concept credit transfer — verify existing work',sourceDate:'',verified:false,classification:'base',notes:'Review and split into documented, verified credits.'}));
+    if(c.creditApplied)fresh.push(makeBlankItem({csi:'01 00 00',csiDescription:'Existing-condition credits',description:'Existing-condition credits — concept allowance transfer',kind:'credit',qty:1,unit:'LS',materialRate:c.creditApplied,laborHours:0,equipmentRate:0,wastePct:0,source:'Concept credit transfer — verify existing work',sourceDate:'',verified:false,classification:'base',notes:'Review and split into documented, verified credits.'}));
     state.items.push(...fresh);state.settings.mode='detailed';logActivity(`Transferred ${fresh.length} concept allowance row(s) into detailed estimate`);$('estimate-mode').value='detailed';renderItems();renderDynamic();saveDraft();flash(`${fresh.length} editable rows added. Update quantities, rates and sources before use.`)
   }
 
@@ -626,13 +688,15 @@
   $('save-project').addEventListener('click',exportProject);$('print-view').addEventListener('click',()=>window.print());
   $('reset-project').addEventListener('click',()=>{state=clone(DEFAULTS);state.rateBook=SEED_BOOK.map(x=>({...x}));logActivity('Reset current project to default concept template');renderAll();saveDraft();flash('Reset to the default concept estimate. Previous JSON exports are unchanged.')});
   $('apply-template').addEventListener('click',()=>{syncProjectFromForm();const t=TYPE_TEMPLATES[state.project.type];Object.assign(state.project,t);state.project.name=TYPES[state.project.type];$('project-name').value=state.project.name;logActivity(`Applied ${TYPES[state.project.type]} starting template`);renderAll();saveDraft();flash('Starting dimensions and program applied. Review before use.')});
+  $('market-preset').addEventListener('change',()=>{const cur=state.settings.preset,sel=$('market-preset').value;if(MARKET_PRESETS[sel]&&sel!==cur)flash('Click "Load preset rate library & labor" to apply this region. The current library is unchanged.');$('market-preset').value=cur;});
+  $('apply-preset').addEventListener('click',()=>{const key=$('market-preset').value,preset=MARKET_PRESETS[key];if(!preset)return;state.settings.preset=key;state.settings.laborRate=preset.laborRate;state.settings.laborBurden=preset.laborBurden;state.settings.marketFactor=preset.materialDelta;state.settings.marketSource=preset.source;state.settings.marketVerified=false;state.project.zone=preset.zone;state.rateBook=buildBook(RATE_ROWS,preset.materialDelta);logActivity(`Loaded ${preset.label} rate library`);renderAll();saveDraft();flash(`${preset.label} loaded — ${state.rateBook.length} rates, zone ${preset.zone}, material index ${preset.materialDelta.toFixed(2)}, labor $${preset.laborRate}/hr loaded. Replace with current vendor quotes before use.`);});
   $('add-blank-item').addEventListener('click',()=>{state.items.push(makeBlankItem());logActivity('Added blank estimate line');renderItems();renderDynamic();saveDraft();flash('Blank estimate line added.')});
   $('add-book-item').addEventListener('click',()=>{const row=state.rateBook.find(x=>x.id===$('book-select').value);if(!row){flash('Select a rate-book item first.');return}state.items.push(makeBlankItem(toBookItem(row)));state.settings.mode='detailed';$('estimate-mode').value='detailed';logActivity(`Added ${row.description} from cost book`);renderItems();renderDynamic();saveDraft();flash('Rate copied to estimate as an editable snapshot.')});
   $('seed-concept').addEventListener('click',seedConceptItems);
   $('add-book-row').addEventListener('click',()=>{state.rateBook.push({id:uid(),csi:'01 00 00',description:'New rate',unit:'EA',materialRate:0,laborHours:0,equipmentRate:0,wastePct:0,source:'',sourceDate:'',verified:false});renderBook();saveDraft();flash('Blank cost-book rate added.')});
   $('export-book-csv').addEventListener('click',exportRateBook);$('import-book-csv').addEventListener('click',()=>$('ratebook-file').click());
   $('ratebook-file').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{importBookCsv(await f.text())}catch(err){flash(`Could not import rate book: ${err.message}`)}finally{e.target.value=''}});
-  $('export-ledger-csv').addEventListener('click',exportEstimateCsv);$('download-proposal').addEventListener('click',downloadProposal);
+  $('export-ledger-csv').addEventListener('click',exportEstimateCsv);$('export-takeoff-csv').addEventListener('click',exportTakeoffCsv);$('download-proposal').addEventListener('click',downloadProposal);
   $('copy-estimate').addEventListener('click',()=>copyText(money(activeEstimate().grandTotal),'Current estimate total copied.'));
   $('copy-proposal').addEventListener('click',()=>copyText(proposalText(activeEstimate()),'Proposal text copied.'));
   $('save-snapshot').addEventListener('click',saveSnapshot);
@@ -641,11 +705,22 @@
   $('year').textContent=new Date().getFullYear();
 
   function init(){
-    let loaded=false,storageUnavailable=false;
-    try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const parsed=JSON.parse(raw);state=validateState(parsed.state||parsed);loaded=true}else{const old=tryLegacy();if(old)state=validateState(old)}}catch(e){state=clone(DEFAULTS);storageUnavailable=true}
+    let loaded=false,storageUnavailable=false,migratedFrom='';
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(raw){state=validateState(JSON.parse(raw).state||JSON.parse(raw));loaded=true}
+      else{
+        const [v5key,v4key]=LEGACY_KEYS;
+        const raw5=localStorage.getItem(v5key);
+        if(raw5){const p5=JSON.parse(raw5);state=validateState(p5&&(p5.state||p5));loaded=true;migratedFrom=v5key}
+        else{const old=tryLegacy(v4key);if(old){state=validateState(old);loaded=true;migratedFrom=v4key}}
+      }
+    }catch(e){state=clone(DEFAULTS);storageUnavailable=true}
     state.rateBook=normalizeBook(state.rateBook);state.items=state.items||[];state.versions=state.versions||[];state.activity=state.activity||[];
     renderAll();
-    if(storageUnavailable)setStatus('Browser storage unavailable','error');else if(loaded)setStatus('Draft restored locally','ok');else setStatus('Local workspace ready','ok');
+    if(storageUnavailable)setStatus('Browser storage unavailable','error');
+    else if(migratedFrom){setStatus('Migrated local workspace','ok');logActivity(`Migrated workspace from ${migratedFrom} to the v6 schema`);saveDraft();flash('Existing workspace migrated to the v6 schema and the Kern County rate library.')}
+    else if(loaded)setStatus('Draft restored locally','ok');else setStatus('Local workspace ready','ok');
   }
   init();
 })();

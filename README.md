@@ -1,6 +1,6 @@
 # SOVR Build OS — Estimating Workbench
 
-**Production estimating workbench v5.0** — a single-file, offline-capable construction estimating aid that moves a project from a concept allowance to a traceable, quantity-based estimate while keeping prices, sources, scope decisions, revisions, and quality checks in one place.
+**Production estimating workbench v6.0** — a single-file, offline-capable construction estimating aid that moves a project from a concept allowance to a traceable, quantity-based estimate while keeping prices, sources, scope decisions, revisions, and quality checks in one place.
 
 [![Live demo](https://img.shields.io/badge/live%20demo-sovr--estimator.vercel.app-11766e)](https://sovr-estimator.vercel.app)
 ![single file](https://img.shields.io/badge/build-none%20required-brightgreen)
@@ -9,6 +9,7 @@
 ![offline](https://img.shields.io/badge/offline-capable-brightgreen)
 
 **Live:** <https://sovr-estimator.vercel.app>
+**Baseline rate library:** Kern County / Bakersfield, California
 
 ---
 
@@ -16,12 +17,15 @@
 
 - [What this is](#what-this-is)
 - [What this is not](#what-this-is-not)
+- [What's new in v6.0](#whats-new-in-v60)
 - [Quick start](#quick-start)
 - [Feature tour](#feature-tour)
 - [The two pricing modes](#the-two-pricing-modes)
 - [Calculation reference](#calculation-reference)
 - [Concept allowance model](#concept-allowance-model)
 - [Detailed unit-price model](#detailed-unit-price-model)
+- [Kern County rate library](#kern-county-rate-library)
+- [Regional presets](#regional-presets)
 - [Cost book](#cost-book)
 - [Automated preflight checks](#automated-preflight-checks)
 - [Takeoffs and coordination schedules](#takeoffs-and-coordination-schedules)
@@ -39,6 +43,7 @@
 - [Repository layout](#repository-layout)
 - [Deployment](#deployment)
 - [Extending the tool](#extending-the-tool)
+- [Calibration notes](#calibration-notes)
 - [Limitations](#limitations)
 - [Disclaimer](#disclaimer)
 - [License](#license)
@@ -55,8 +60,6 @@ Everything runs in the browser. There is no backend, no account, no telemetry, a
 
 ## What this is not
 
-This tool is explicit about its boundaries, both in the interface and in the code:
-
 | Not this | Why |
 | --- | --- |
 | A bid, quote, or guaranteed price | No prices are contracted, negotiated, or committed |
@@ -67,6 +70,61 @@ This tool is explicit about its boundaries, both in the interface and in the cod
 | An audit log | Snapshots are browser-local and trivially editable |
 
 The interface repeats these limits in the hero footer, the estimate method banner, every panel's disclaimer note, and the generated proposal text.
+
+**The shipped Kern County rate library is a planning baseline, not a quote book.** Every row ships unverified and undated on purpose, so the tool's own freshness and provenance checks flag them honestly until you replace them with real vendor pricing.
+
+---
+
+## What's new in v6.0
+
+v6.0 is a recalibration release. v5.0's concept model was tuned for a small accessory unit and produced materially understated numbers for ordinary dwellings; several line items could not scale with the actual program at all.
+
+**Bug fix**
+
+- **Rate freshness check repaired.** `ageDays()` contained a double-backslash regex literal (`/^\\d{4}-.../`) that matched a literal `\d{4}` instead of a date, so it returned `Infinity` for every input. The consequence: in detailed mode the *Rate freshness* preflight check could **never** pass, permanently reporting a false warning even for rates quoted today. Now returns correct day counts.
+
+**Kern County rate library**
+
+- 30 priced CSI rows researched for **Kern County / Bakersfield** residential construction — material rates, labor hours per unit, equipment, and waste percentages — replacing the 11 empty placeholder rows shipped in v5.
+- Five **regional presets** (`kern`, `la`, `sac`, `sd`, `bay`) that load the library scaled by a transparent material delta plus a regional loaded labor rate and climate zone.
+- Rate library ships **unverified and undated** so provenance checks report honestly.
+
+**Recalibrated concept model**
+
+| Division | v5.0 | v6.0 |
+| --- | --- | --- |
+| Site work | `800 + trench×6.5 + area×2.1` | `2500 + trench×26 + area×3.2` |
+| Foundation & slab | *absent* | New division, driven by takeoff slab + stem-wall volume; drops to a verification allowance when an existing slab is credited |
+| Framing | `area×7.2 + beds×950 + baths×1200` | `area×19 + beds×2100 + baths×2400` |
+| Roofing | *absent* | New division, `area×6.8` |
+| HVAC | `area×hvac×1.10` (hvac ≈ 3.4) | `area×hvac×1.10` (hvac rescaled 8.6–15.5) |
+| Electrical | `area×4.2 + baths×650` | `area×8.4 + baths×700` |
+| Plumbing | `baths×3200 + 1800 + heater` | `area×2.1 + baths×3900 + beds×520 + laundry×2300 + heater + 2600` |
+| Interior finishes | `area×finishRate×0.32` | `area×finishRate×0.30` |
+| Openings & exterior | *bundled into finishes* | New separate division, `area×9.2` |
+| Permits | `2800 + area×3.5` | `3200 + area×4.6` |
+| Engineering | `2500 + area×1.5` | `3500 + area×3.2` |
+| Existing-condition credits | flat `$14 / $18 / $10` per SF | derived from the actual affected division base |
+
+**Market index semantics corrected**
+
+- The market index now applies to **material and equipment only**. Previously it multiplied labor as well, so one index was silently discounting labor markets *and* material markets by the same number. Labor is driven by the hourly rate and burden, which is where a labor market actually lives.
+
+**New inputs**
+
+- **Laundry hookup / laundry room** checkbox — adds plumbing and electrical allowance for washer, dryer, supply and drain.
+- **Regional rate preset** selector with a load button.
+
+**New outputs**
+
+- **Takeoffs & coordination CSV export** — structural, electrical, openings and room-allocation schedules to one UTF-8 BOM CSV, including the verification warning.
+- **Cost-book rate-age card** — a provenance banner reporting stale rates, undated rates, or all-current, against the configured refresh target.
+
+**Storage**
+
+- New `sovr-build-os-estimator-v6` key with automatic migration from v5 and v4 workspaces on first load.
+
+**Calibration effect** — a 1,274 SF / 3 bed / 1 bath plan at Kern County defaults moved from **$119,065 ($93.46/SF)** in v5.0 to **$179,889 ($141.20/SF)** in v6.0, with 10% contingency and no overhead, profit, or tax in either case.
 
 ---
 
@@ -92,13 +150,14 @@ python -m http.server 8080
 
 The estimator requires JavaScript for calculation, validation, and exports; a `<noscript>` notice is shown when scripting is off.
 
-### First estimate in five steps
+### First estimate in six steps
 
 1. **Project identity** — pick a project type, name the job, and enter the site city and ZIP.
-2. **Geometry and program** — set length, width, stories, bedrooms, bathrooms, finish reference, and climate zone. Gross area recalculates as you type.
-3. **Choose a pricing method** — stay on the *concept allowance model* for early ROM work, or switch to *detailed unit-price line items* for a traceable build-up.
-4. **Price it** — in detailed mode, open **Cost book** and enter real local rates, then pull them into **Line items**.
-5. **Check and issue** — open **Scope & QA**, resolve the critical gaps, record a review, then export the ledger CSV or the proposal worksheet.
+2. **Geometry and program** — set length, width, stories, bedrooms, bathrooms, laundry, finish reference, and climate zone. Gross area recalculates as you type.
+3. **Load your market** — in *Market & labor factors*, pick a regional preset and click **Load preset rate library & labor**. This sets the climate zone, the loaded labor rate, and replaces the cost book with that region's scaled library.
+4. **Choose a pricing method** — stay on the *concept allowance model* for early ROM work, or switch to *detailed unit-price line items* for a traceable build-up.
+5. **Price it** — in detailed mode, open **Cost book** and replace the library rates with real vendor quotes and as-of dates, then pull them into **Line items**.
+6. **Check and issue** — open **Scope & QA**, resolve the critical gaps, record a review, then export the ledger CSV, takeoffs CSV, or the proposal worksheet.
 
 ---
 
@@ -120,13 +179,13 @@ Three ways to populate it:
 - **Add a rate-book item** — copies a row from your cost book onto the estimate as a snapshot.
 - **Add blank line** — a clean row to fill in.
 
-Line-item rates are **copied snapshots, not live links**. Changing a cost-book rate does not retroactively change estimates that already consumed it — which is deliberate: it preserves the record of what a given estimate was priced from.
+Line-item rates are **copied snapshots, not live links**. Changing a cost-book rate does not retroactively change estimates that already consumed it — deliberate, because it preserves the record of what a given estimate was priced from.
 
 ### Cost book
 
-Your regional price memory. Eleven CSI-seeded rows ship unpriced so you can fill in real numbers. Every row carries material rate, labor hours, equipment, waste, source/vendor, as-of date, and a verified flag. Supports **Import CSV**, **Export CSV**, add, and delete.
+Your regional price memory. 30 CSI rows ship pre-priced for Kern County. Every row carries material rate, labor hours, equipment, waste, source/vendor, as-of date, and a verified flag. Supports **Import CSV**, **Export CSV**, add, and delete.
 
-Live stats track entries, how many are priced at all, and how many carry both a source and a date alongside the verified flag.
+Live stats track entries, how many are priced, and how many carry both a source and a date. A **provenance banner** below the stats reports stale rates, undated rates, or all-current against the refresh target.
 
 > "Verified" is a **user attestation**. Nothing checks it against an external feed.
 
@@ -136,7 +195,7 @@ Four free-text scope fields (included, excluded, allowances/owner selections, op
 
 ### Takeoffs & schedules
 
-Dimension-derived planning quantities — deliberately labelled as conceptual coordination aids, not measured takeoffs. Four sub-tables plus room allocation cards.
+Dimension-derived planning quantities — deliberately labelled as conceptual coordination aids, not measured takeoffs. Four sub-tables plus room allocation cards, and a **CSV export** of the whole panel.
 
 ### Timeline
 
@@ -154,7 +213,7 @@ Named snapshots with the total at the moment of saving, delta against the curren
 
 ## The two pricing modes
 
-The mode selector in **Project & pricing setup → 03 · Estimate method** is the single most consequential setting in the tool.
+The mode selector in *Project & pricing setup → 03 · Estimate method* is the single most consequential setting in the tool.
 
 | | Concept allowance model | Detailed unit-price line items |
 | --- | --- | --- |
@@ -176,13 +235,15 @@ All calculations are explicit and inspectable. Here is the complete model.
 ### Line-item extension (detailed mode)
 
 ```
-material   = quantity × materialRate   × (1 + waste%) × marketFactor
-labor      = quantity × laborHours     × laborRate   × (1 + burden%)  × marketFactor
-equipment  = quantity × equipmentRate                       × marketFactor
+material   = quantity × materialRate   × (1 + waste%) × material market index
+labor      = quantity × laborHours     × laborRate   × (1 + burden%)
+equipment  = quantity × equipmentRate                       × material market index
 extended   = material + labor + equipment
 ```
 
 A row with `kind = credit` is negated (`−1` sign applied to all three components) and reduces base cost.
+
+**The market index does not touch labor.** Labor markets and material markets diverge — a region can see lumber move 20% while wages hold flat — so v6.0 applies your material index to material and equipment only, and leaves labor entirely to the hourly rate and burden you enter. Configure the loaded rate correctly and leave burden at `0`.
 
 ### Classification behaviour
 
@@ -210,41 +271,65 @@ grandTotal  = max(0, netDirect + tax + contingency + overhead + profit + escalat
 costPerSF   = grandTotal ÷ area
 ```
 
-`taxableBase` is material + equipment of base rows, with credit-row material and equipment subtracted. All rounding is to whole dollars at each step; the rate is formatted to two decimals.
+`taxableBase` is material + equipment of base rows, with credit-row material and equipment subtracted. In concept mode, permits and engineering are **excluded from the market index** because jurisdiction fees and design fees are local, not commodity-driven. All rounding is to whole dollars at each step; the rate is formatted to two decimals.
 
 > Verify contingency, burden, overhead, profit, and escalation treatment against your own contract and accounting policy. Different firms apply these to different bases.
+
+### Material / labour splits
+
+Each concept division carries a fixed installed-cost split used to present material and labor separately in the ledger.
+
+| Division key | Material | Labor |
+| --- | --- | --- |
+| `site` | 35% | 65% |
+| `foundation` | 50% | 50% |
+| `framing` | 55% | 45% |
+| `insulation` | 60% | 40% |
+| `roofing` | 60% | 40% |
+| `hvac` | 45% | 55% |
+| `electrical` | 45% | 55% |
+| `plumbing` | 40% | 60% |
+| `interior` | 50% | 50% |
+| `exterior` | 55% | 45% |
+| `permits` | 100% | 0% |
+| `engineering` | 100% | 0% |
+
+Labor is then scaled by `laborRate ÷ 85 × (1 + burden%)`, with $85/hr as the reference point.
 
 ---
 
 ## Concept allowance model
 
-A transparent ROM formula built from geometry, program, climate zone, finish reference, trench length, and market factor. Nine CSI-level bases:
+A transparent ROM formula built from geometry, program, climate zone, finish reference, trench length, and market factors. Twelve CSI-level bases:
 
-| CSI | Division | Basis |
+| CSI | Division | Basis formula |
 | --- | --- | --- |
-| `02 30 00` | Civil work & utility trench | Base site allowance + entered trench length + area |
-| `06 11 00` | Framing & structural wood | Area, partition layout, bedroom and bathroom count |
-| `07 21 00` | Insulation & moisture barrier | Climate-zone rate + area factor |
-| `23 00 00` | HVAC / mechanical | Climate-zone rate × ceiling configuration |
-| `26 00 00` | Electrical | Area + layout / bathroom allowance |
-| `22 00 00` | Plumbing & water heating | Bathroom count + kitchen / heater allowance |
-| `08–09` | Openings, drywall & finishes | Finish reference $/SF × 32% |
-| `01 41 00` | Permits & fees | Generic planning allowance; jurisdiction fees vary |
-| `01 40 00` | Engineering & design | Concept design / engineering allowance |
+| `02 20 00` | Site work, grading & utility trench | `2500 + trench×26 + area×3.2` |
+| `03 11 00` | Foundation, footings & slab | `slabCY × 400`, or `900` if an existing slab is credited |
+| `06 11 00` | Framing, sheathing & structural wood | `area×(19 partitioned / 13 studio) + beds×2100 + baths×2400` |
+| `07 21 00` | Insulation, air & moisture barrier | `area × (zoneInsulation + 1)` |
+| `07 92 00` | Roofing, underlayment & flashing | `area×6.8` |
+| `23 00 00` | HVAC / mechanical | `area × zoneHvac × (1.15 vaulted / 1.10 flat)` |
+| `26 00 00` | Electrical | `area×8.4 + baths×700` |
+| `22 00 00` | Plumbing, water heating & laundry | `area×2.1 + baths×3900 + beds×520 + laundry×2300 + heater + 2600` |
+| `09 00 00` | Interior finishes, drywall & flooring | `area × finishRate × 0.30` |
+| `08 50 00` | Openings, doors, windows & exterior finish | `area×9.2` |
+| `01 41 00` | Permits, plan check & inspections | `3200 + area×4.6` (excluded from market index) |
+| `01 40 00` | Engineering & design | `3500 + area×3.2` (excluded from market index) |
 
-Each base is split into material and labor using fixed division ratios (`civil` 40/60, `framing` 55/45, `insulation` 60/40, `mep` 45/55, `finishes` 50/50, `permits` and `engineering` material-only), then scaled by the market factor and by `(laborRate ÷ 85) × (1 + burden%)`.
+Where `slabCY = ((footprint × 4/12 ÷ 27) + (perimeter × 0.25 × 0.5 ÷ 27)) × 1.10`, and `heater` is `$1,900` for heat pump / electric or `$1,300` for gas.
 
-**Existing-condition credits** apply when you tick the corresponding checkbox:
+**Existing-condition credits** are now derived from the division they actually offset, rather than from a flat per-square-foot guess:
 
 | Condition | Credit |
 | --- | --- |
-| Existing slab / foundation | area × $14 × market factor |
-| Existing framing | area × $18 × market factor |
-| Existing utilities available | area × $10 × market factor |
+| Existing slab / foundation | 90% of the foundation division base |
+| Existing framing | 55% of the framing division base |
+| Existing utilities available | 25% of the plumbing division base |
 
 Credits are capped at the positive direct cost so the total can never go negative from credits alone.
 
-**These numbers are placeholders.** They are inherited ROM assumptions with no quote behind them, which is exactly why the preflight panel marks concept mode as a critical gap unconditionally.
+**These numbers remain placeholders.** They are inherited ROM assumptions with no quote behind them, which is exactly why the preflight panel marks concept mode as a critical gap unconditionally.
 
 ---
 
@@ -274,25 +359,82 @@ Everything is driven by your line items, grouped into the ledger by CSI code.
 
 ---
 
+## Kern County rate library
+
+Thirty priced rows researched for residential construction in **Kern County / Bakersfield, California**. Material rate is per unit; labor is expressed as **hours per unit** so it reprices automatically when you change the loaded hourly rate.
+
+| CSI | Description | Unit | Material | Labor hr | Equip | Waste |
+| --- | --- | --- | --- | --- | --- | --- |
+| `01 21 00` | Temporary power & site facilities | LS | $1,250.00 | 4.0 | — | — |
+| `01 40 00` | Engineering / design | LS | $6,500.00 | — | — | — |
+| `01 41 00` | Permits, plan check & inspections | LS | $5,200.00 | 12.0 | — | — |
+| `02 20 00` | Excavation & grading | CY | — | 1.4 | $46.00 | — |
+| `02 30 00` | Utility trench & backfill | LF | $9.00 | 1.2 | $18.00 | — |
+| `03 11 00` | Footings & stem wall | CY | $185.00 | 1.9 | $35.00 | 5% |
+| `03 30 00` | Slab on grade — mesh, vapor barrier, finish | SF | $6.40 | 0.85 | $0.90 | — |
+| `03 35 00` | Concrete curing & protection | LS | $480.00 | 8.0 | — | — |
+| `06 11 00` | Framing & structural wood | SF | $13.50 | 0.28 | $0.35 | 8% |
+| `06 40 00` | Wall & roof sheathing | SF | $2.85 | 0.08 | — | 10% |
+| `07 21 00` | Insulation & air barrier | SF | $1.35 | 0.02 | — | 5% |
+| `07 52 00` | Fireblocking & draft stopping | LF | $2.10 | 0.05 | — | — |
+| `07 92 00` | Roofing shingles & underlayment | SF | $5.60 | 0.10 | — | 8% |
+| `08 11 00` | Interior & exterior doors | EA | $385.00 | 3.2 | — | — |
+| `08 50 00` | Windows & glazed openings | EA | $625.00 | 5.5 | — | — |
+| `09 22 00` | Gypsum board, tape & texture | SF | $3.15 | 0.14 | — | 7% |
+| `09 63 00` | Flooring & base | SF | $6.20 | 0.12 | — | 6% |
+| `09 91 00` | Interior & exterior paint | SF | $3.40 | 0.16 | — | 3% |
+| `10 21 00` | Bathroom accessories & hardware | EA | $240.00 | 2.4 | — | — |
+| `11 40 00` | Plumbing fixtures & trim | EA | $480.00 | 6.0 | — | — |
+| `22 40 00` | Domestic water piping | LF | $16.50 | 0.35 | — | 3% |
+| `22 60 00` | Water heater / heat pump water heater | EA | $2,150.00 | 9.0 | — | — |
+| `23 05 00` | HVAC ducting & equipment | SF | $7.80 | 0.22 | — | — |
+| `26 05 00` | Electrical service & panel | EA | $1,450.00 | 11.0 | — | — |
+| `26 20 00` | Branch wiring & devices | SF | $9.40 | 0.26 | — | — |
+| `26 30 00` | Lighting & controls | SF | $4.10 | 0.07 | — | — |
+| `28 00 00` | Casework & countertops | LF | $185.00 | 2.4 | — | 4% |
+| `31 00 00` | Demolition of existing structure | SF | $1.10 | 0.18 | $0.35 | — |
+| `32 50 00` | Exterior siding & trim | SF | $9.80 | 0.22 | — | 6% |
+| `33 11 00` | Water service & utilities allowance | LS | $4,200.00 | 16.0 | — | — |
+
+Every row's `source` is set to `Kern County 2026 planning library — unverified, replace with a current vendor quote`, and every `sourceDate` is **blank** with `verified` **false**.
+
+> **These are planning baselines, not quotes.** They exist so the tool opens with something structurally realistic instead of a wall of zeros, and so the preflight panel has honest provenance gaps to report. Bid them out before you rely on any of them.
+
+**Sanity check.** Feeding 1,274 SF of framing through the `06 11 00` row at the Kern preset ($55/hr loaded, 8% waste) produces **$30.33/SF installed**, which sits inside the expected Bakersfield framing range of roughly $26–36/SF.
+
+---
+
+## Regional presets
+
+One researched library, five transparent regional adjustments. Loading a preset sets the climate zone, the loaded labor rate, **the material market index**, and rebuilds the cost book with material and equipment rates scaled by the region's material delta. Labor rates are **fully loaded** — burden is set to `0`.
+
+| Preset | Zone | Material delta | Loaded labor |
+| --- | --- | --- | --- |
+| **Kern County · Bakersfield** | 14 | 1.00 | $55/hr |
+| Los Angeles basin | 09 | 1.06 | $71/hr |
+| Sacramento valley | 12 | 1.04 | $60/hr |
+| San Diego coast | 03 | 1.05 | $68/hr |
+| San Jose Bay area | 04 | 1.08 | $82/hr |
+
+Loading a preset **resets the `marketVerified` flag to false** — a regional delta is an adjustment, not a verification.
+
+### Climate zone factors
+
+| Zone | Label | Insulation factor | HVAC factor | Wall / ceiling placeholders |
+| --- | --- | --- | --- | --- |
+| `03` | San Diego coast | 8.5 | 10.0 | R-13 / R-30 |
+| `04` | San Jose Bay Area | 6.0 | 8.6 | R-15 / R-30 |
+| `09` | Los Angeles basin | 8.2 | 9.5 | R-19 / R-30 |
+| `12` | Sacramento | 9.5 | 13.5 | R-21 + CI / R-38 |
+| `14` | Bakersfield | 10.5 | 15.5 | R-21 + CI / R-38 |
+
+Insulation and HVAC factors are now expressed in installed cost per square foot and were raised substantially in v6.0 — v5.0's HVAC factors of 3.2–5.8 implied roughly $4/SF of mechanical, which is a repair-level figure, not a ducted system.
+
+These are **planning placeholders, not energy-code determinations.**
+
+---
+
 ## Cost book
-
-### Seed rows
-
-Eleven CSI codes ship unpriced as a starting structure:
-
-```
-01 40 00  Engineering / design              LS
-01 41 00  Permits / jurisdiction fees        LS
-02 30 00  Civil work / utility trench        LF
-03 30 00  Cast-in-place concrete             CY
-06 11 00  Framing & structural wood          SF
-07 21 00  Insulation & moisture barrier      SF
-08 50 00  Windows / doors                    EA
-09 29 00  Drywall / finishes                 SF
-22 00 00  Plumbing / water heating           EA
-23 00 00  HVAC / mechanical                  EA
-26 00 00  Electrical                         SF
-```
 
 ### CSV columns
 
@@ -303,6 +445,18 @@ csi, description, unit, materialRate, laborHours, equipmentRate, wastePct, sourc
 ```
 
 `verified` imports only when the value is exactly `true` (case-insensitive). Imports append to the existing book; exports are UTF-8 with a BOM and CRLF line endings so they open cleanly in Excel.
+
+### Provenance banner
+
+Below the cost-book stats, a readiness banner reports:
+
+| State | Condition | Badge |
+| --- | --- | --- |
+| Stale | Any rate has a `sourceDate` older than the refresh target | `Stale` (critical styling) |
+| Undated | No stale rates, but some rate has no `sourceDate` | `Undated` |
+| Current | Every rate is dated within the refresh target | `Current` (good styling) |
+
+A rate with no date can never satisfy the freshness test, so an undated library correctly reports *Undated* rather than falsely claiming currency.
 
 ### Capacity limits
 
@@ -384,6 +538,10 @@ Gross area is split by share with **largest-remainder rounding**, so the allocat
 
 Bathroom share = `min(18%, 10% + (bathrooms − 1) × 3.5%)`, split evenly across bathrooms.
 
+### CSV export
+
+**Export takeoffs CSV** writes one UTF-8 BOM CSV containing the project header block, all three schedule tables with their column headings, the room allocation, and a closing `WARNING` row restating that these are conceptual planning quantities requiring verification against actual plans and the applicable jurisdiction.
+
 ---
 
 ## Preliminary timeline
@@ -411,7 +569,7 @@ With a target start date set, the tool shows an indicative completion window. **
 The generated transmittal contains:
 
 1. Header block — project, type, client, site, date, method, prepared by
-2. **Project basis** — dimensions, area, program, finish reference, climate placeholder, market adjustment with source and date, labor rate and burden
+2. **Project basis** — dimensions, area, program, finish reference, climate placeholder, material market index with source and date, labor rate and burden
 3. **Base cost by division** — CSI-aligned, column-formatted
 4. **Commercial summary** — positive direct, credits, net direct, each adder with its percentage, planning total, cost/SF, alternates outside base, owner-supplied items, excluded row count
 5. **Inclusions** / **Exclusions** — one bullet per line from the scope fields
@@ -440,7 +598,7 @@ Doors & windows
 ## Revisions and snapshots
 
 - **Save revision snapshot** captures project, settings, scope, cost book, and line items, plus the label, timestamp, mode, project name, and total at that moment.
-- Each row shows **Change vs current** — the signed delta between the snapshot total and the live estimate, so you can see the impact of rate or scope changes at a glance.
+- Each row shows **Change vs current** — the signed delta between the snapshot total and the live estimate.
 - **Restore** replaces the working state while keeping the snapshot list and activity log intact.
 - Keeps the **20 most recent** snapshots and the **40 most recent** activity entries.
 - Snapshot labels default to `Revision N` when left blank.
@@ -473,19 +631,7 @@ Templates only define the **starting scope envelope**. They do not set rates and
 | Premium | $175/SF |
 | Luxury | $250/SF |
 
-The finish rate is used in concept mode for the finishes division at 32% of gross area. In detailed mode it is carried into the proposal text as the finish reference only.
-
-### Climate zones
-
-| Zone | Label | Insulation factor | HVAC factor | Wall / ceiling placeholders |
-| --- | --- | --- | --- | --- |
-| `03` | San Diego coast | 7.5 | 3.8 | R-13 / R-30 |
-| `04` | San Jose Bay Area | 5.2 | 3.2 | R-15 / R-30 |
-| `09` | Los Angeles basin | 7.4 | 3.4 | R-19 / R-30 |
-| `12` | Sacramento | 8.5 | 5.0 | R-21 + CI / R-38 |
-| `14` | Bakersfield | 9.4 | 5.8 | R-21 + CI / R-38 |
-
-These are **planning placeholders, not energy-code determinations.**
+Used in concept mode for the interior finishes division at 30% of gross area. In detailed mode the finish reference is carried into the proposal text as a reference only.
 
 ---
 
@@ -500,8 +646,9 @@ Every numeric input is clamped on both entry and import.
 | Bedrooms | 0–10 | 1 |
 | Bathrooms | 1–10 | 1 |
 | Utility trench | 0–300 LF | 25 LF |
-| Market index | 0.70–1.50 | 1.00 |
-| Base labor rate | $20–$250/hr | $85/hr |
+| Laundry hookup | boolean | checked |
+| Material market index | 0.70–1.50 | 1.00 |
+| Base labor rate | $20–$250/hr | $55/hr |
 | Labor burden | 0–100% | 0% |
 | Tax on material/equipment | 0–20% | 0% |
 | Contingency | 0–50% | 10% |
@@ -514,7 +661,7 @@ Every numeric input is clamped on both entry and import.
 
 Other structural limits: **500** cost-book rows, **1,500** line items, **20** snapshots, **40** activity entries, 150-character activity messages, 90-character project names, 100-character locations, 120-character market sources, 160-character review notes, 6,000-character scope fields.
 
-Setting labor burden to `0` is correct if your hourly rate is already fully loaded.
+Setting labor burden to `0` is correct if your hourly rate is already fully loaded — which is how every regional preset ships.
 
 ---
 
@@ -526,10 +673,13 @@ Everything lives in **`localStorage`** in the current browser profile:
 
 | Key | Contents |
 | --- | --- |
-| `sovr-build-os-estimator-v5` | Full state, schema version 2 |
-| `sovr-build-os-estimator-v4-draft` | Read-only legacy draft, auto-migrated on first load |
+| `sovr-build-os-estimator-v6` | Full state, schema version 2 (active) |
+| `sovr-build-os-estimator-v5` | v5 state, auto-migrated on first v6 load |
+| `sovr-build-os-estimator-v4-draft` | Legacy flat draft, auto-migrated on first v6 load |
 
-Autosave is debounced 180 ms after the last change. The status dot in the top bar reports `Saving locally` → `Draft saved locally`, or **`Browser storage unavailable`** if the write fails — for example in private-browsing modes or with storage disabled.
+On load, v6 checks its own key first, then falls back to v5, then to v4. A migrated workspace is validated, saved to the v6 key, and logged to the activity list so the migration is visible rather than silent.
+
+Autosave is debounced 180 ms after the last change. The status dot in the top bar reports `Saving locally` → `Draft saved locally`, or **`Browser storage unavailable`** if the write fails.
 
 ### What is never done
 
@@ -559,6 +709,7 @@ Because data is browser-local and per-profile, it does not sync across browsers,
 | **Save JSON** | `<Project>_SOVR_Project.json` | Complete portable backup: full state plus a calculated summary |
 | **Open** | Reads the same format | Validated and clamped on import; invalid files are rejected with a message |
 | **Export ledger CSV** | `<Project>_Estimate.csv` | Division roll-up and commercial summary; **appends every line item when in detailed mode** |
+| **Export takeoffs CSV** | `<Project>_Takeoffs.csv` | Structural, electrical, openings and room-allocation schedules plus warning row |
 | **Export CSV** (cost book) | `<Project>_Rate_Book.csv` | UTF-8 BOM, CRLF, quoted fields |
 | **Import CSV** (cost book) | — | Appends; requires `csi` and `description` headers |
 | **Download .txt** | `<Project>_Proposal_RFQ.txt` | Full transmittal |
@@ -576,16 +727,17 @@ Clipboard copy uses the async Clipboard API where available and secure, with a `
 ```jsonc
 {
   "application": "SOVR Build OS Estimating Workbench",
-  "version": "5.0",
+  "version": "6.0",
   "schemaVersion": 2,
   "exportedAt": "2026-10-04T21:00:00.000Z",
   "state": {
     "project":  { /* type, name, client, location, zip, preparedBy, startDate,
                      length, width, stories, bedrooms, bathrooms, layout, finish,
-                     zone, heating, ceiling, trench, slab, framing, utilities */ },
-    "settings": { /* mode, marketFactor, marketSource, marketDate, marketVerified,
-                     laborRate, laborBurden, taxRate, contingency, overhead, profit,
-                     escalation, rateMaxAgeDays, pricingReviewed */ },
+                     zone, heating, ceiling, trench, laundry, slab, framing,
+                     utilities */ },
+    "settings": { /* mode, preset, marketFactor, marketSource, marketDate,
+                     marketVerified, laborRate, laborBurden, taxRate, contingency,
+                     overhead, profit, escalation, rateMaxAgeDays, pricingReviewed */ },
     "scope":    { /* included, excluded, allowances, risks, reviewedBy, reviewNote,
                      reviewDate, rfq[] */ },
     "rateBook": [ { /* id, csi, description, unit, materialRate, laborHours,
@@ -607,7 +759,7 @@ Clipboard copy uses the async Clipboard API where available and secure, with a `
 
 Every import runs through `validateState()`, which:
 
-- Merges against defaults, so missing keys are safe
+- Merges against defaults, so missing keys are safe (this is how the v5 → v6 migration adds `laundry` and `preset`)
 - Coerces every number with `Number()` and clamps it to range
 - Rejects invalid enum values and falls back to defaults
 - Validates all dates against `^\d{4}-\d{2}-\d{2}$`
@@ -662,27 +814,27 @@ The hard design constraint was: **one file, zero dependencies, zero network.** T
 | --- | --- |
 | Language | Vanilla ES2020 in a single IIFE, `'use strict'` |
 | Markup | Semantic HTML5 with ARIA |
-| Styling | Inline CSS with custom properties, ~29 lines of minified rules |
+| Styling | Inline CSS with custom properties |
 | Dependencies | **None** |
 | Build step | **None** |
 | Formatting | `Intl.NumberFormat` (USD, integer and 2-decimal variants) |
 | Dates | `Intl.DateTimeFormat` plus `toLocaleString` |
-| Persistence | `localStorage`, debounced 180 ms |
+| Persistence | `localStorage`, debounced 180 ms, with v6/v5/v4 key fallback |
 | File I/O | `Blob` + `URL.createObjectURL` + programmatic anchor click |
 | CSV | Hand-rolled RFC-4180-style parser handling quotes, escaped quotes, CRLF, and BOM |
 | XSS defence | `esc()` helper escaping `& < > " '` on every interpolated value |
 | Icons | Inline SVG |
-| Sizes | ~654 lines, ~130 KB, of which the CSS is a small fraction |
+| Size | ~720 lines, ~140 KB |
 
 ### Rendering strategy
 
 `renderDynamic()` recomputes the estimate and repaints the header, KPIs, ledger, QA, takeoffs, timeline, proposal, and history on every change. A deliberate exception: **active form inputs are never rebuilt while you type**, so the caret does not jump. Table row repaints are likewise scoped so only the affected row's extended total is touched.
 
-`renderEverything()` — the full repaint including form hydration, cost book, and line items — runs only on initial load, import, reset, template apply, and snapshot restore.
+`renderEverything()` — the full repaint including form hydration, cost book, and line items — runs only on initial load, import, reset, template apply, preset load, and snapshot restore.
 
 ### Constants
 
-All tunable model data is declared at the top of the script: project types, templates, finish rates, climate zones, division material/labor splits, the seed cost book, the RFQ scope options, and defaults. This is the intended extension point.
+All tunable model data is declared at the top of the script: project types, templates, finish rates, climate zones, division material/labor splits, the Kern County rate rows, market presets, RFQ scope options, and defaults. This is the intended extension point.
 
 ### Browser support
 
@@ -694,7 +846,7 @@ Any evergreen browser: Chrome / Edge 90+, Firefox 90+, Safari 15+. Relies on ES2
 
 ```
 NEW_sovr-production-estimator/
-├── index.html          # the entire application (v5.0)
+├── index.html          # the entire application (v6.0)
 ├── README.md           # this document
 ├── .gitignore          # .vercel
 └── .vercel/            # Vercel project link (git-ignored)
@@ -723,36 +875,76 @@ Points of interest in `index.html`, in order:
 
 | What | Where |
 | --- | --- |
-| Storage keys | `STORAGE_KEY`, `LEGACY_KEY` |
+| Storage keys and legacy fallback | `STORAGE_KEY`, `LEGACY_KEYS` |
 | Project types and templates | `TYPES`, `TYPE_TEMPLATES` |
 | Finish rates and labels | `FINISH_RATES`, `FINISH_LABELS` |
 | Climate zones | `CLIMATE` |
 | Division material/labor splits | `SPLITS` |
+| **Kern County rate library** | `RATE_ROWS`, `RATE_SOURCE` |
+| **Regional presets** | `MARKET_PRESETS`, `buildBook()` |
 | RFQ scope options | `SCOPE_OPTIONS` |
-| Seed cost book | `SEED_BOOK` |
 | Default project state | `DEFAULTS` |
 | Concept calculation | `calcConcept()` |
 | Commercial stack | `finishCalculation()` |
 | Line-item math | `itemAmounts()` |
 | Detailed calculation | `calcDetailed()` |
 | Preflight checks | `getQaChecks()` |
+| Cost-book age banner | `renderBook()` |
 | Takeoff derivations | `renderPlanSchedules()` |
+| Takeoffs CSV | `exportTakeoffCsv()` |
 | Timeline phases | `renderTimeline()` |
 | Proposal text | `proposalText()` |
 | Import validation | `validateState()` |
+| Schema migration | `init()` |
 
-**Practical next steps if you build on this:** add real cost-book content for your market; add a rate-age alert on the cost book itself; split takeoffs into per-sheet quantity exports; add a second currency; add a company letterhead to the proposal output.
+**To add your own market:** edit `RATE_ROWS` in place, or add a preset to `MARKET_PRESETS` with its own `materialDelta`, `laborRate`, and `zone`. Keep `verified: false` and `sourceDate: ''` until you have actually quoted the work.
+
+**Practical next steps if you build on this:** add company letterhead to the proposal output; add per-sheet material takeoff exports; split the interior finishes division into drywall, flooring, paint and trim; add a second currency; add jurisdiction-specific permit fee tables.
+
+---
+
+## Calibration notes
+
+The v6.0 concept model was calibrated against a worked 1,274 SF / 3 bed / 1 bath single-storey plan (24'-6" × 52'-0") to land in a defensible range for Bakersfield new construction.
+
+**Kern County defaults — 1,274 SF, 3 BR, 1 BA, laundry, standard finish, zone 14, $55/hr loaded labor, 10% contingency, no overhead/profit/tax:**
+
+| Division | Material | Labor | Total |
+| --- | --- | --- | --- |
+| `02 20 00` Site work, grading & utility trench | $2,529 | $3,040 | $5,569 |
+| `03 11 00` Foundation, footings & slab | $3,616 | $2,340 | $5,956 |
+| `06 11 00` Framing, sheathing & structural wood | $18,098 | $9,581 | $27,679 |
+| `07 21 00` Insulation, air & moisture barrier | $8,791 | $3,792 | $12,583 |
+| `07 92 00` Roofing, underlayment & flashing | $5,198 | $2,242 | $7,440 |
+| `23 00 00` HVAC / mechanical | $9,775 | $7,730 | $17,505 |
+| `26 00 00` Electrical | $5,131 | $4,058 | $9,189 |
+| `22 00 00` Plumbing, water heating & laundry | $5,974 | $5,798 | $11,772 |
+| `09 00 00` Interior finishes, drywall & flooring | $23,888 | $15,457 | $39,345 |
+| `08 50 00` Openings, doors, windows & exterior finish | $6,447 | $3,413 | $9,860 |
+| `01 41 00` Permits, plan check & inspections | $9,060 | — | $9,060 |
+| `01 40 00` Engineering & design | $7,577 | — | $7,577 |
+| **Positive direct cost** | | | **$163,535** |
+| Contingency 10% | | | + $16,354 |
+| **Planning total** | | | **$179,889** |
+| **Cost / SF** | | | **$141.20** |
+
+At the same geometry, the Los Angeles preset (zone 09, material index 1.06, $71/hr loaded labor) with illustrative tax, 12% overhead, 10% profit and 6% escalation produces **$257,572 ($202.18/SF)** — against **$179,889 ($141.20/SF)** for Kern with contingency only. The roughly 40% spread between the two markets is what the regional delta and labor rate are doing.
+
+**These figures are order-of-magnitude planning anchors derived from a formula, not a bid.** They are published so you can see what the model does and argue with it. Your local quotes are the estimate.
 
 ---
 
 ## Limitations
 
-- **Placeholder concept rates.** The ROM model's numbers are illustrative, unverified, and carry no quote behind them.
+- **The rate library is unverified.** All 30 Kern County rows ship undated and unflagged on purpose. They are structurally realistic, not quoted.
+- **The concept model is still a formula.** It has no site grading model, no foundation type selection, no roof geometry, no utility capacity logic, and no assembly-level detail. It scales with area and room counts because that is all a floor plan contains.
+- **No room count is a proxy for design.** A 3 bed / 1 bath plan and a 3 bed / 3 bath plan differ far more than the bathroom scaling captures.
 - **Dimension-derived takeoffs.** Not measured takeoffs. Openings are not deducted from wall areas; roof pitch, overhangs, and structure are not modelled.
 - **No engineering.** No load calculations, no structural design, no energy-code compliance determination, no accessibility analysis.
 - **No code determination.** Permit requirements, jurisdiction fees, egress, glazing safety, and insulation values must be confirmed with the actual authority and licensed professionals.
 - **Fixed allowance buckets.** The electrical and openings schedules use example protection ratings and conductor sizes, explicitly labelled as examples.
 - **Sequential schedule.** Trade overlap is not modelled, so calendar duration will realistically be shorter.
+- **Regional deltas are coarse.** The four non-Kern presets are single material multipliers and one labor rate. Real markets differ by trade, not uniformly.
 - **Browser-local state.** No sync, no multi-device continuity, no collaboration.
 - **Not an audit log.** Snapshots are local and editable.
 - **US-centric.** USD formatting, US climate zones, and US CSI division codes throughout.
